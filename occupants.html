@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Occupants Info - PropManager</title>
+    <link rel="stylesheet" href="occupants.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav style="height: 90px;" class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <img src="images/PropManager_Logo_NoBckg.png" alt="Logo">
+                <span>PropManager</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav d-flex justify-content-evenly w-100">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">HOME</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">DASHBOARD</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#properties">PROPERTIES</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="occupants.html">OCCUPANCY INFO</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#documents">DOCUMENTS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#income">TRACK INCOME</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid occupants-container">
+        <!-- Search and Filter Section -->
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="search-box">
+                    <input type="text" class="form-control" placeholder="Search occupants...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="filter-box">
+                    <select class="form-select">
+                        <option selected>Filter by Status</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Occupancy Stats -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="occupant-stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Total Occupants</h3>
+                    <p class="number">45</p>
+                    <p class="status">Active Leases</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="occupant-stat-card">
+                    <i class="fas fa-file-signature"></i>
+                    <h3>Pending Applications</h3>
+                    <p class="number">8</p>
+                    <p class="status">Under Review</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="occupant-stat-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Move-ins This Month</h3>
+                    <p class="number">5</p>
+                    <p class="status">Scheduled</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="occupant-stat-card">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>Upcoming Move-outs</h3>
+                    <p class="number">3</p>
+                    <p class="status">Next 30 Days</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Occupants List -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="occupants-list-card">
+                    <h3>Current Occupants</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Unit</th>
+                                    <th>Move-in Date</th>
+                                    <th>Lease End Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="occupant-info">
+                                            <img src="/placeholder.svg?height=40&width=40" alt="John Doe" class="occupant-avatar">
+                                            <div>
+                                                <h6>John Doe</h6>
+                                                <small>john.doe@email.com</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Unit 101</td>
+                                    <td>Jan 15, 2024</td>
+                                    <td>Jan 14, 2025</td>
+                                    <td><span class="status-badge active">Active</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-outline-primary me-2">View</button>
+                                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="occupant-info">
+                                            <img src="/placeholder.svg?height=40&width=40" alt="Jane Smith" class="occupant-avatar">
+                                            <div>
+                                                <h6>Jane Smith</h6>
+                                                <small>jane.smith@email.com</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Unit 205</td>
+                                    <td>Mar 1, 2024</td>
+                                    <td>Feb 28, 2025</td>
+                                    <td><span class="status-badge pending">Pending</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-outline-primary me-2">View</button>
+                                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Add more rows as needed -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

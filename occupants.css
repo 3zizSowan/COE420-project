@@ -1,0 +1,271 @@
+/* Occupants Page Styles */
+/* --------------NAVBAR */
+.navbar {
+    position: static;
+    z-index: 10; 
+    background-color: #EEEEEE;
+  }
+  
+  .navbar-brand img {
+    height: 50px; 
+    width: auto; 
+  }
+  
+  .nav-link {
+    color: #34495e;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  .nav-link:hover {
+    color: #b59410; 
+  }
+  
+  .nav-link.active {
+    color: #b59410;
+  }
+  
+  .login-link {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    color: rgb(0, 47, 108);
+  }
+  
+  .login-link i {
+    margin-right: 5px;
+    font-size: 1.2rem;
+  }
+  
+  .login-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Centering the navbar items in mobile view */
+  @media (max-width: 992px) {
+    .navbar-collapse {
+      text-align: left;
+      background-color: #eeeeee;
+    }
+  
+    .navbar-nav {
+      justify-content: center;
+      padding: 1rem;
+    }
+  
+    .nav-link {
+      padding: 0.5rem;
+      display: block;
+      color: #34495e;
+    }
+    
+    .nav-link:hover {
+      color: #b59410;
+    }
+    
+    .nav-link.active {
+      color: #b59410;
+    }
+    
+    .navbar-collapse .nav-link {
+      color: #34495e; 
+    }
+    
+    .navbar-collapse .nav-link:hover {
+      color: #b59410; 
+    }
+    
+    .navbar-brand img {
+      margin: auto;
+    }
+  }
+    
+.occupants-container {
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 90px);
+}
+
+/* Search and Filter Styles */
+.search-box {
+    position: relative;
+}
+
+.search-box .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgb(0, 47, 108);
+}
+
+.search-box input,
+.filter-box select {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.search-box input:focus,
+.filter-box select:focus {
+    border-color: rgb(0, 47, 108);
+    box-shadow: 0 0 0 0.2rem rgba(0, 47, 108, 0.25);
+}
+
+/* Occupant Stat Cards */
+.occupant-stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.occupant-stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.occupant-stat-card i {
+    font-size: 2rem;
+    color: rgb(0, 47, 108);
+    margin-bottom: 10px;
+}
+
+.occupant-stat-card .number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: rgb(0, 47, 108);
+    margin: 10px 0;
+}
+
+.occupant-stat-card .status {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Occupants List Card */
+.occupants-list-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.occupants-list-card h3 {
+    color: rgb(0, 47, 108);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    color: rgb(0, 47, 108);
+    font-weight: 600;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Occupant Info Styles */
+.occupant-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.occupant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.occupant-info h6 {
+    margin: 0;
+    color: rgb(0, 47, 108);
+}
+
+.occupant-info small {
+    color: #666;
+}
+
+/* Status Badge Styles */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.status-badge.pending {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.status-badge.inactive {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-buttons .btn {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .occupants-container {
+        padding: 15px;
+    }
+
+    .occupant-stat-card {
+        margin-bottom: 15px;
+    }
+
+    .search-box,
+    .filter-box {
+        margin-bottom: 15px;
+    }
+
+    .table-responsive {
+        border: none;
+    }
+
+    .occupant-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .occupant-avatar {
+        margin: 0 auto;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
