@@ -1,0 +1,221 @@
+/* Documents Page Styles */
+/* --------------NAVBAR */
+.navbar {
+    position: static;
+    z-index: 10; 
+    background-color: #EEEEEE;
+}
+
+.navbar-brand img {
+    height: 50px; 
+    width: auto; 
+}
+
+.nav-link {
+    color: #34495e;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #b59410; 
+}
+
+.nav-link.active {
+    color: #b59410;
+}
+
+/* Centering the navbar items in mobile view */
+@media (max-width: 992px) {
+    .navbar-collapse {
+        text-align: left;
+        background-color: #eeeeee;
+    }
+
+    .navbar-nav {
+        justify-content: center;
+        padding: 1rem;
+    }
+}
+
+/* Documents Container */
+.documents-container {
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 90px);
+}
+
+/* Document Stats */
+.document-stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.document-stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.document-stat-card i {
+    font-size: 2rem;
+    color: rgb(0, 47, 108);
+    margin-bottom: 10px;
+}
+
+.document-stat-card .number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: rgb(0, 47, 108);
+    margin: 10px 0;
+}
+
+.document-stat-card .status {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Documents Management Card */
+.documents-management-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.documents-management-card h3 {
+    color: rgb(0, 47, 108);
+    margin-bottom: 20px;
+}
+
+/* Search Box */
+.search-box {
+    position: relative;
+}
+
+.search-box .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgb(0, 47, 108);
+}
+
+.search-box input {
+    padding-right: 40px;
+}
+
+/* Document Info */
+.document-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.document-icon {
+    font-size: 1.5rem;
+    color: rgb(0, 47, 108);
+}
+
+.document-info h6 {
+    margin: 0;
+    color: rgb(0, 47, 108);
+}
+
+.document-info small {
+    color: #666;
+}
+
+/* Status Badge */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.status-badge.pending {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.status-badge.archived {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-buttons .btn {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+}
+
+/* Modal Styles */
+.modal-header {
+    background-color: rgb(0, 47, 108);
+    color: white;
+}
+
+.modal-header .btn-close {
+    color: white;
+}
+
+/* Form Controls */
+.form-control:focus,
+.form-select:focus {
+    border-color: rgb(0, 47, 108);
+    box-shadow: 0 0 0 0.2rem rgba(0, 47, 108, 0.25);
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: rgb(0, 47, 108);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: rgb(0, 47, 108);
+    border-color: rgb(0, 47, 108);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .documents-container {
+        padding: 15px;
+    }
+
+    .document-stat-card {
+        margin-bottom: 15px;
+    }
+
+    .search-box,
+    .form-select {
+        margin-bottom: 15px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .document-info {
+        flex-direction: column;
+        text-align: center;
+    }
+}

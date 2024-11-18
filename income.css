@@ -1,0 +1,216 @@
+/* Income Tracking Page Styles */
+/* --------------NAVBAR */
+.navbar {
+    position: static;
+    z-index: 10; 
+    background-color: #EEEEEE;
+}
+
+.navbar-brand img {
+    height: 50px; 
+    width: auto; 
+}
+
+.nav-link {
+    color: #34495e;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #b59410; 
+}
+
+.nav-link.active {
+    color: #b59410;
+}
+
+/* Main Container */
+.income-container {
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 90px);
+}
+
+/* Net Income Card */
+.net-income-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.net-income-card h2 {
+    color: rgb(0, 47, 108);
+    margin-bottom: 15px;
+}
+
+.net-income-amount {
+    font-size: 3rem;
+    font-weight: bold;
+    color: rgb(0, 47, 108);
+    margin-bottom: 5px;
+}
+
+.income-period {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.trend-indicator {
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+.trend-indicator.positive {
+    color: #198754;
+}
+
+.trend-indicator.negative {
+    color: #dc3545;
+}
+
+.quick-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #666;
+}
+
+.stat-item i {
+    color: rgb(0, 47, 108);
+}
+
+/* Finance Cards */
+.finance-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.finance-card .card-header {
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.finance-card h3 {
+    color: rgb(0, 47, 108);
+    margin-bottom: 10px;
+}
+
+.finance-card .amount {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.amount.positive {
+    color: #198754;
+}
+
+.amount.negative {
+    color: #dc3545;
+}
+
+/* Property List */
+.property-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.property-item {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.property-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.property-info h6 {
+    margin: 0;
+    color: rgb(0, 47, 108);
+}
+
+.property-info .amount {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Progress Bars */
+.progress {
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+}
+
+.progress-bar {
+    border-radius: 4px;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: rgb(0, 47, 108);
+    border-color: rgb(0, 47, 108);
+    padding: 12px 30px;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background-color: rgba(0, 47, 108, 0.9);
+    border-color: rgba(0, 47, 108, 0.9);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .income-container {
+        padding: 15px;
+    }
+
+    .net-income-card {
+        padding: 20px;
+    }
+
+    .net-income-amount {
+        font-size: 2.5rem;
+    }
+
+    .quick-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .finance-card {
+        margin-bottom: 20px;
+    }
+
+    .property-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
+    }
+}
+
+/* Hover Effects */
+.finance-card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+
+.property-item:hover {
+    background: #f0f0f0;
+    transition: background-color 0.3s ease;
+}
