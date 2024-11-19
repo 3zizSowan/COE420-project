@@ -131,13 +131,13 @@
 }
 
 .status-badge.fully-occupied {
-    background-color: rgba(25, 135, 84, 0.1);
-    color: #198754;
+    background-color: #198754;
+    color: #f8f9fa;
 }
 
 .status-badge.partially-vacant {
-    background-color: rgba(255, 193, 7, 0.1);
-    color: #ffc107;
+    background-color: #ffc107;
+    color: #f8f9fa;
 }
 
 .property-details {
