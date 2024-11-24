@@ -273,3 +273,42 @@
     background-color: rgb(0, 47, 108);
     color: white;
 }
+
+/* Properties Overview Styles */
+.property-stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.property-stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.property-stat-card i {
+    font-size: 2rem;
+    color: rgb(0, 47, 108);
+    margin-bottom: 10px;
+}
+
+.property-stat-card .number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: rgb(0, 47, 108);
+    margin: 10px 0;
+}
+
+.property-stat-card .status {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .property-stat-card {
+        margin-bottom: 20px; /* Add spacing between cards on smaller screens */
+    }
+}

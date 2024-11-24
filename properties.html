@@ -28,10 +28,10 @@
                         <a class="nav-link" href="dashboard.html">HOME</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="properties.html">PROPERTIES</a>
+                        <a class="nav-link" href="properties.html">PROPERTIES</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="occupants.html">OCCUPANCY INFO</a>
+                        <a class="nav-link active" href="occupants.html">OCCUPANCY INFO</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="documents.html">DOCUMENTS</a>
@@ -41,6 +41,11 @@
                     </li>
                 </ul>
             </div>
+            <a href="landing.html" class="btn btn-link" id="logoutButton" aria-label="Logout">
+                <button class="btn btn-link" id="logoutButton" aria-label="Logout"">
+                    <i class="fas fa-sign-out-alt" style="font-size: 24px; color: rgb(0, 47, 108);"></i>
+                </button>
+            </a>
         </div>
     </nav>
 
@@ -48,7 +53,7 @@
     <div class="container-fluid properties-container">
         <!-- Properties Overview -->
         <div class="row mt-4">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="property-stat-card">
                     <i class="fas fa-building"></i>
                     <h3>Total Properties</h3>
@@ -56,7 +61,7 @@
                     <p class="status">Active Management</p>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="property-stat-card">
                     <i class="fas fa-home"></i>
                     <h3>Occupied Units</h3>
@@ -64,20 +69,12 @@
                     <p class="status">95% Occupancy Rate</p>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="property-stat-card">
                     <i class="fas fa-door-open"></i>
                     <h3>Vacant Units</h3>
                     <p class="number">2</p>
                     <p class="status">Available for Rent</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="property-stat-card">
-                    <i class="fas fa-tools"></i>
-                    <h3>Maintenance</h3>
-                    <p class="number">5</p>
-                    <p class="status">Pending Requests</p>
                 </div>
             </div>
         </div>
@@ -91,32 +88,6 @@
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
                             <i class="fas fa-plus"></i> Add New Property
                         </button>
-                    </div>
-
-                    <!-- Search and Filter -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search properties...">
-                                <i class="fas fa-search search-icon"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select">
-                                <option selected>Filter by Status</option>
-                                <option>Fully Occupied</option>
-                                <option>Partially Vacant</option>
-                                <option>Under Maintenance</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select">
-                                <option selected>Sort by</option>
-                                <option>Occupancy Rate</option>
-                                <option>Revenue</option>
-                                <option>Units</option>
-                            </select>
-                        </div>
                     </div>
 
                     <!-- Properties Grid -->
@@ -145,11 +116,11 @@
                                         </div>
                                     </div>
                                     <div class="property-actions mt-3">
-                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewPropertyModal">
-                                            <i class="fas fa-eye"></i> View Details
+                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewOccupantsModal" data-property-id="1">
+                                            <i class="fas fa-users"></i> View Occupants
                                         </button>
-                                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPropertyModal">
-                                            <i class="fas fa-edit"></i> Edit
+                                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewDocumentsModal" data-property-id="1">
+                                            <i class="fas fa-file-alt"></i> View Documents
                                         </button>
                                     </div>
                                 </div>
@@ -180,11 +151,11 @@
                                         </div>
                                     </div>
                                     <div class="property-actions mt-3">
-                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewPropertyModal">
-                                            <i class="fas fa-eye"></i> View Details
+                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewOccupantsModal" data-property-id="2">
+                                            <i class="fas fa-users"></i> View Occupants
                                         </button>
-                                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPropertyModal">
-                                            <i class="fas fa-edit"></i> Edit
+                                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewDocumentsModal" data-property-id="2">
+                                            <i class="fas fa-file-alt"></i> View Documents
                                         </button>
                                     </div>
                                 </div>
@@ -193,21 +164,6 @@
 
                         <!-- Add more property cards as needed -->
                     </div>
-
-                    <!-- Pagination -->
-                    <nav aria-label="Properties pagination" class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
                 </div>
             </div>
         </div>
@@ -219,164 +175,86 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Property</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="addPropertyForm">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Property Name</label>
-                                <input type="text" class="form-control" required>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Property Name/Address</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Property Type</label>
+                                    <select class="form-select" required>
+                                        <option value="">Select type...</option>
+                                        <option>Apartment</option>
+                                        <option>House</option>
+                                        <option>Commercial</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Number of Units</label>
+                                    <input type="number" class="form-control" min="1" required>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Address</label>
-                                <input type="text" class="form-control" required>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Property Images</label>
+                                    <input type="file" class="form-control" multiple accept="image/*">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" rows="4"></textarea>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Total Units</label>
-                                <input type="number" class="form-control" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Property Type</label>
-                                <select class="form-select" required>
-                                    <option value="">Select Type</option>
-                                    <option>Apartment Complex</option>
-                                    <option>Single Family Home</option>
-                                    <option>Commercial Building</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Year Built</label>
-                                <input type="number" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Property Images</label>
-                            <input type="file" class="form-control" multiple>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="3"></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Add Property</button>
+                    <button type="button" class="btn btn-primary" id="saveProperty">Save Property</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- View Property Modal -->
-    <div class="modal fade" id="viewPropertyModal" tabindex="-1">
+    <!-- View Occupants Modal -->
+    <div class="modal fade" id="viewOccupantsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Property Details</h5>
+                    <h5 class="modal-title">Occupants</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="property-details-view">
-                        <div class="property-images mb-4">
-                            <img src="/placeholder.svg?height=300&width=600" alt="Property" class="img-fluid rounded">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h4>123 Main Street</h4>
-                                <p class="text-muted">Apartment Complex</p>
-                                <div class="detail-item">
-                                    <i class="fas fa-building"></i>
-                                    <span>12 Total Units</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-user-check"></i>
-                                    <span>100% Occupancy Rate</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-dollar-sign"></i>
-                                    <span>$15,000 Monthly Revenue</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h5>Quick Stats</h5>
-                                <div class="detail-item">
-                                    <i class="fas fa-tools"></i>
-                                    <span>2 Pending Maintenance Requests</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-file-alt"></i>
-                                    <span>15 Active Leases</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-calendar-check"></i>
-                                    <span>Last Inspection: Jan 15, 2024</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ul class="list-group" id="occupantsList">
+                        <!-- Occupants will be dynamically loaded here -->
+                    </ul>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Generate Report</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Edit Property Modal -->
-    <div class="modal fade" id="editPropertyModal" tabindex="-1">
+    <!-- View Documents Modal -->
+    <div class="modal fade" id="viewDocumentsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Property</h5>
+                    <h5 class="modal-title">Documents</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Property Name</label>
-                                <input type="text" class="form-control" value="123 Main Street" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Address</label>
-                                <input type="text" class="form-control" value="123 Main Street, City, State" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Total Units</label>
-                                <input type="number" class="form-control" value="12" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Property Type</label>
-                                <select class="form-select" required>
-                                    <option selected>Apartment Complex</option>
-                                    <option>Single Family Home</option>
-                                    <option>Commercial Building</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Year Built</label>
-                                <input type="number" class="form-control" value="1995" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Property Images</label>
-                            <input type="file" class="form-control" multiple>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="3">Modern apartment complex with excellent amenities...</textarea>
-                        </div>
-                    </form>
+                    <ul class="list-group" id="documentsList">
+                        <!-- Documents will be dynamically loaded here -->
+                    </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -384,5 +262,52 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sample data - In a real application, this would come from a database
+            const properties = [
+                { id: 1, name: '123 Main Street', occupants: [{ name: 'John Doe', unit: 'Apt 1A', email: 'john.doe@example.com' }], documents: [{ title: 'Lease Agreement', date: '2024-01-01', url: 'documents/lease_agreement.pdf' }] },
+                { id: 2, name: '456 Oak Avenue', occupants: [{ name: 'Jane Smith', unit: 'Unit 2B', email: 'jane.smith@example.com' }], documents: [{ title: 'Insurance Document', date: '2024-02-01', url: 'documents/insurance_document.pdf' }] },
+                // Add more properties as needed
+            ];
+
+            // Load occupants into the modal
+            function loadOccupants(propertyId) {
+                const property = properties.find(p => p.id == propertyId);
+                const occupantsList = document.getElementById('occupantsList');
+                occupantsList.innerHTML = property.occupants.map(occupant => `
+                    <li class="list-group-item">
+                        <strong>${occupant.name}</strong> - ${occupant.unit} - <a href="mailto:${occupant.email}">${occupant.email}</a>
+                    </li>
+                `).join('');
+            }
+
+            // Load documents into the modal
+            function loadDocuments(propertyId) {
+                const property = properties.find(p => p.id == propertyId);
+                const documentsList = document.getElementById('documentsList');
+                documentsList.innerHTML = property.documents.map(document => `
+                    <li class="list-group-item">
+                        <a href="${document.url}" target="_blank"><strong>${document.title}</strong></a> - Added on ${document.date}
+                    </li>
+                `).join('');
+            }
+
+            // Event listeners for modals
+            document.querySelectorAll('[data-bs-target="#viewOccupantsModal"]').forEach(button => {
+                button.addEventListener('click', function () {
+                    const propertyId = this.getAttribute('data-property-id');
+                    loadOccupants(propertyId);
+                });
+            });
+
+            document.querySelectorAll('[data-bs-target="#viewDocumentsModal"]').forEach(button => {
+                button.addEventListener('click', function () {
+                    const propertyId = this.getAttribute('data-property-id');
+                    loadDocuments(propertyId);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

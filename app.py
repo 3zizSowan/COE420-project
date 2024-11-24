@@ -674,12 +674,12 @@ def register_routes(app):
     """Register all routes with the Flask app"""
     
     # User routes
-    app.add_url_rule('/api/signup', view_func=UserView.as_view('user'))
-    app.add_url_rule('/api/login', view_func=LoginView.as_view('login'))
+    app.add_url_rule('signup.html', view_func=UserView.as_view('user'))
+    app.add_url_rule('login.html', view_func=LoginView.as_view('login'))
     app.add_url_rule('/api/reset-password', view_func=PasswordResetView.as_view('password_reset'))
     
     # Property routes
-    app.add_url_rule('/api/properties', view_func=PropertyView.as_view('properties'))
+    app.add_url_rule('properties.html', view_func=PropertyView.as_view('properties'))
     app.add_url_rule(
         '/api/properties/<property_id>', 
         view_func=PropertyDetailView.as_view('property_detail')
