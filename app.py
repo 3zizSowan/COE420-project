@@ -674,7 +674,7 @@ def register_routes(app):
     """Register all routes with the Flask app"""
     
     # User routes
-    app.add_url_rule('signup.html', view_func=UserView.as_view('user'))
+    # app.add_url_rule(, view_func=UserView.as_view('user'))
     app.add_url_rule('login.html', view_func=LoginView.as_view('login'))
     app.add_url_rule('/api/reset-password', view_func=PasswordResetView.as_view('password_reset'))
     
