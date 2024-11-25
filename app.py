@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, send_file
+from flask import Flask, request, jsonify, session, send_file, render_template
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import os
 import uuid
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='Templates')
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///property_management.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -672,26 +672,47 @@ class PropertySummaryView(AuthenticatedMethodView):
 
 def register_routes(app):
     """Register all routes with the Flask app"""
-    
+    @app.route('/api/signup')
+    def signup_page():
+        return render_template('signup.html')
+
+    @app.route('/login')
+    def login_page():
+        return render_template('login.html')
+
     # User routes
-    # app.add_url_rule(, view_func=UserView.as_view('user'))
-    app.add_url_rule('login.html', view_func=LoginView.as_view('login'))
-    app.add_url_rule('/api/reset-password', view_func=PasswordResetView.as_view('password_reset'))
+    app.add_url_rule('/api/signup', view_func=UserView.as_view('user'))
+    app.add_url_rule('/login', view_func=LoginView.as_view('login'))
+    #app.add_url_rule('/api/reset-password', view_func=PasswordResetView.as_view('password_reset'))
     
     # Property routes
-    app.add_url_rule('properties.html', view_func=PropertyView.as_view('properties'))
+    @app.route('/properties')
+    def login_page():
+        return render_template('properties.html')
+    
+    app.add_url_rule('/properties', view_func=PropertyView.as_view('properties'))
+    
+    
     app.add_url_rule(
-        '/api/properties/<property_id>', 
+        '/properties/<property_id>', 
         view_func=PropertyDetailView.as_view('property_detail')
     )
     
     # Occupancy routes
+    @app.route('/occupants')
+    def login_page():
+        return render_template('occupants.html')
+    
     app.add_url_rule(
         '/api/properties/<property_id>/occupancy', 
         view_func=OccupancyView.as_view('occupancy')
     )
     
     # Document routes
+    @app.route('/documents')
+    def login_page():
+        return render_template('documents.html')
+    
     app.add_url_rule(
         '/api/properties/<property_id>/documents', 
         view_func=DocumentView.as_view('documents')
@@ -702,30 +723,34 @@ def register_routes(app):
     )
     
     # Income route
+    @app.route('/income')
+    def login_page():
+        return render_template('income.html')
+    
     app.add_url_rule(
         '/api/properties/<property_id>/income',
         view_func=IncomeView.as_view('income')
     )
     
-    # Notification routes
-    app.add_url_rule(
-        '/api/properties/<property_id>/notifications',
-        view_func=NotificationView.as_view('notifications')
-    )
-    app.add_url_rule(
-        '/api/notifications/check',
-        view_func=NotificationCheckView.as_view('check_notifications')
-    )
+    # # Notification routes
+    # app.add_url_rule(
+    #     '/api/properties/<property_id>/notifications',
+    #     view_func=NotificationView.as_view('notifications')
+    # )
+    # app.add_url_rule(
+    #     '/api/notifications/check',
+    #     view_func=NotificationCheckView.as_view('check_notifications')
+    # )
     
-    # Summary routes
-    app.add_url_rule(
-        '/api/properties/<property_id>/summary',
-        view_func=PropertySummaryView.as_view('property_summary')
-    )
-    app.add_url_rule(
-        '/api/dashboard',
-        view_func=DashboardView.as_view('dashboard')
-    )
+    # # Summary routes
+    # app.add_url_rule(
+    #     '/api/properties/<property_id>/summary',
+    #     view_func=PropertySummaryView.as_view('property_summary')
+    # )
+    # app.add_url_rule(
+    #     '/api/dashboard',
+    #     view_func=DashboardView.as_view('dashboard')
+    # )
 
 # Error handlers
 @app.errorhandler(404)
