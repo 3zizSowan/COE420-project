@@ -7,14 +7,15 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/CSS/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
 </head>
 <body>
     <!-- Navbar -->
     <nav style="height: 90px;" class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="index.html">
-                <img src="/images/PropManager_Logo_NoBckg.png" alt="Logo">
+            <a class="navbar-brand" href="landing.html">
+                <img src="{{ url_for('static', filename='images/PropManager_Logo_NoBckg.png') }}" alt="Logo">
+                <!-- <img src="/images/PropManager_Logo_NoBckg.png" alt="Logo"> -->
                 <span>PropManager</span>
             </a>
         </div>
@@ -40,7 +41,7 @@
                                 <input type="checkbox" class="form-check-input" id="rememberMe">
                                 <label class="form-check-label" for="rememberMe">Remember me</label>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100" onclick="redirectToDashboard()">Login</button>
+                            <button type="button" class="btn btn-primary w-100" id="loginButton">Login</button>
                         </form>
                         <div class="text-center mt-3">
                             <a href="#" class="forgot-password" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password?</a>
@@ -81,7 +82,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/app.py"></script>
+    <!-- <script src="/app.py"></script> -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
     <script>
         document.getElementById('sendResetLink').addEventListener('click', function() {
             const email = document.getElementById('forgotEmail').value;
@@ -95,6 +98,56 @@
                 alert('Please enter a valid email address.');
             }
         });
+
+        //LOGIN---------------------------
+        // event listener to the login button
+        document.getElementById('loginButton').addEventListener('click', function (event) {
+            // Prevent the form from refreshing the page
+            event.preventDefault();
+
+            // Collect email and password from the form
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            // Validate inputs
+            if (!email || !password) {
+                alert('Please enter both email and password.');
+                return;
+            }
+
+            // Prepare the payload for the request
+            const loginData = {
+                email: email,
+                password: password
+            };
+
+            // Make a POST request to the server
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Login successful') {
+                    // Save user ID in local storage or cookies (if necessary)
+                    // Redirect to the dashboard or another page
+                    window.location.href = '/dashboard'; // Change '/dashboard' to your desired route
+                } else {
+                    // Handle login errors
+                    alert(data.error || 'Login failed. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again later.');
+            });
+        });
+
+
     </script>
+
 </body>
 </html>

@@ -6,8 +6,16 @@ from flask.views import MethodView
 from datetime import datetime, timedelta
 import os
 import uuid
+from flask_cors import CORS
+from flask_migrate import Migrate
+import os 
+from werkzeug.utils import secure_filename
+
+
 
 app = Flask(__name__, template_folder='Templates')
+CORS(app)
+
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///property_management.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -15,7 +23,7 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'}
 
 db = SQLAlchemy(app)
-
+migrate = Migrate(app, db)
 # Helper functions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -72,7 +80,9 @@ class Property(db.Model):
     current_occupancy = db.relationship('Occupancy', backref='property', uselist=False)
     documents = db.relationship('Document', backref='property', lazy=True)
     notifications = db.relationship('Notification', backref='property', lazy=True)
-
+    rent_per_month = db.Column(db.Float, nullable=False)
+    units = db.Column(db.Integer, nullable=False)
+    
     def add_occupancy(self, tenant_data):
         if self.occupancy_status == 'occupied':
             raise ValueError("Property is already occupied")
@@ -194,6 +204,31 @@ class Notification(db.Model):
             'is_active': self.is_active
         }
 
+class Dashboard(db.Model):
+    __tablename__ = 'dashboard'
+
+    id = db.Column(db.Integer, primary_key=True)
+    total_properties = db.Column(db.Integer, nullable=False)
+    total_tenants = db.Column(db.Integer, nullable=False)
+    total_income = db.Column(db.Float, nullable=False)
+    vacant_properties = db.Column(db.Integer, nullable=False)
+
+    @classmethod
+    def get_dashboard_data(cls):
+        total_properties = Property.query.count()
+        total_tenants = Tenant.query.count()
+        total_income = sum(payment.amount for payment in Payment.query.filter_by(status='paid'))
+        vacant_properties = Property.query.filter_by(occupancy_status='vacant').count()
+
+        return cls(
+            total_properties=total_properties,
+            total_tenants=total_tenants,
+            total_income=total_income,
+            vacant_properties=vacant_properties
+        )
+
+
+
 # Views
 class AuthenticatedMethodView(MethodView):
     """Base class for views that require authentication"""
@@ -226,6 +261,8 @@ class LoginView(MethodView):
     def post(self):
         """Handle user login"""
         data = request.json
+        
+
         if not all(k in data for k in ['email', 'password']):
             return jsonify({'error': 'Missing credentials'}), 400
 
@@ -234,6 +271,38 @@ class LoginView(MethodView):
             session['user_id'] = user.user_id
             return jsonify({'message': 'Login successful'}), 200
         return jsonify({'error': 'Invalid credentials'}), 401
+
+# probably wrong:
+# class DashboardView(MethodView):
+#     def get(self):
+#         """Get dashboard summary"""
+#         # Fetch the logged-in user
+#         user = User.query.get(session['user_id'])
+        
+#         # Fetch all properties for the user
+#         properties = Property.query.filter_by(user_id=user.user_id).all()
+
+#         # Calculate dashboard summary
+#         summary = {
+#             'properties': {
+#                 'total': len(properties),
+#                 'vacant': sum(1 for p in properties if p.occupancy_status == 'vacant'),
+#                 'occupied': sum(1 for p in properties if p.occupancy_status == 'occupied')
+#             },
+#             'finances': {
+#                 'total_income': sum(p.get_income_summary()['total_paid'] for p in properties if p.current_occupancy),
+#                 'total_pending': sum(p.get_income_summary()['total_due'] for p in properties if p.current_occupancy),
+#             },
+#             'upcoming_renewals': sum(
+#                 1 for p in properties 
+#                 if p.current_occupancy and 
+#                 (p.current_occupancy.lease_end_date - datetime.now().date()).days <= 30
+#             )
+#         }
+
+#         return jsonify(summary), 200   
+
+
 
 class PasswordResetView(AuthenticatedMethodView):
     def post(self):
@@ -255,41 +324,90 @@ class PasswordResetView(AuthenticatedMethodView):
             return jsonify({'error': str(e)}), 400
 
 class PropertyView(AuthenticatedMethodView):
-    def get(self):
-        """Get all properties for the current user"""
-        properties = Property.query.filter_by(user_id=session['user_id']).all()
-        return jsonify([{
-            'property_id': p.property_id,
-            'property_type': p.property_type,
-            'street_name': p.street_name,
-            'city': p.city,
-            'occupancy_status': p.occupancy_status,
-            'current_tenant': p.current_occupancy.tenant_name if p.current_occupancy else None
-        } for p in properties]), 200
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    def allowed_file(self, filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in self.ALLOWED_EXTENSIONS
+
 
     def post(self):
         """Add a new property"""
-        data = request.json
-        required_fields = ['property_type', 'street_name', 'city', 'size_sqft', 'bedrooms']
-        if not all(k in data for k in required_fields):
-            return jsonify({'error': 'Missing required fields'}), 400
+        if 'user_id' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        data = request.form  # Use form data to handle both JSON and file inputs
+        image_file = request.files.get('image')
+
+        # Check if image is provided and valid
+        image_filename = None
+        if image_file and self.allowed_file(image_file.filename):
+            image_filename = secure_filename(image_file.filename)
+            image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+
+        # Ensure required fields are present
+        required_fields = ['property_type', 'street_name', 'city', 'size_sqft', 'bedrooms', 'units', 'rent_per_month', 'occupancy_status']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            return jsonify({'error': f"Missing fields: {', '.join(missing_fields)}"}), 400
 
         try:
-            property = Property(
+            # Create the new property
+            new_property = Property(
                 user_id=session['user_id'],
                 property_type=data['property_type'],
                 street_name=data['street_name'],
                 city=data['city'],
-                building_details=data.get('building_details'),
-                size_sqft=data['size_sqft'],
-                bedrooms=data['bedrooms']
+                building_details=data.get('building_details'),  # Optional
+                size_sqft=float(data['size_sqft']),
+                bedrooms=int(data['bedrooms']),
+                units=int(data['units']),
+                rent_per_month=float(data['rent_per_month']),
+                occupancy_status=data['occupancy_status'],
+                image=image_filename  # Save the image filename in the database
             )
-            db.session.add(property)
+
+            db.session.add(new_property)
             db.session.commit()
-            return jsonify({'message': 'Property added successfully', 'property_id': property.property_id}), 201
+
+            return jsonify({'message': 'Property added successfully', 'property_id': new_property.property_id}), 201
+
         except Exception as e:
             db.session.rollback()
-            return jsonify({'error': str(e)}), 400
+            return jsonify({'error': f"Failed to add property: {str(e)}"}), 500
+
+    def get(self):
+        """Get all properties for the logged-in user"""
+        if 'user_id' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        # Fetch properties belonging to the logged-in user
+        user_id = session['user_id']
+        properties = Property.query.filter_by(user_id=user_id).all()
+
+        if not properties:
+            print('properties does not exist')
+            return render_template('properties.html', properties=[])
+
+        # Convert properties to dictionaries
+        properties_data = [
+            {
+                'property_id': p.property_id,
+                'property_type': p.property_type,
+                'street_name': p.street_name,
+                'city': p.city,
+                'size_sqft': p.size_sqft,
+                'bedrooms': p.bedrooms,
+                'rent_per_month': p.rent_per_month,
+                'units': p.units,
+                'occupancy_status': p.occupancy_status,
+                'building_details': p.building_details,
+                # Use default image if no image is provided
+                'image': 'default.jpg'  # Replace this with p.image if image uploads are implemented
+            }
+            for p in properties
+        ]
+        return jsonify(properties_data), 200
+        # return render_template('properties.html', properties=properties_data)   
+
 
 class PropertyDetailView(AuthenticatedMethodView):
     def get(self, property_id):
@@ -670,37 +788,100 @@ class PropertySummaryView(AuthenticatedMethodView):
             'document_count': len(property.documents)
         }), 200
 
+class PropertyOverviewView(AuthenticatedMethodView):
+    def get(self):
+        """Get properties overview statistics for the logged-in user"""
+        if 'user_id' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        user_id = session['user_id']
+        
+        # Total properties
+        total_properties = Property.query.filter_by(user_id=user_id).count()
+
+        # Occupied properties
+        occupied_properties = Property.query.filter_by(user_id=user_id, occupancy_status='occupied').count()
+
+        # Vacant properties
+        vacant_properties = Property.query.filter_by(user_id=user_id, occupancy_status='vacant').count()
+
+        # Return the statistics as JSON
+        return jsonify({
+            'total_properties': total_properties,
+            'occupied_properties': occupied_properties,
+            'vacant_properties': vacant_properties
+        })
+
+
 def register_routes(app):
     """Register all routes with the Flask app"""
     @app.route('/api/signup')
+    def signup_page3():
+        return render_template('/signup.html')
+    
+    @app.route('/signup.html')
     def signup_page():
-        return render_template('signup.html')
+        return render_template('/signup.html')
+    
+    @app.route('/signup')
+    def signup_page2():
+        return render_template('/signup.html')
 
-    @app.route('/login')
+    @app.route('/login.html')
     def login_page():
-        return render_template('login.html')
+        return render_template('/login.html')
+    
+    @app.route('/login')
+    def login_page2():
+        return render_template('/login.html')
+    
+    @app.route('/')
+    def home():
+        return render_template('/landing.html')
+    
+    @app.route('/landing.html')
+    def home2():
+        return render_template('/landing.html')
 
     # User routes
-    app.add_url_rule('/api/signup', view_func=UserView.as_view('user'))
+
     app.add_url_rule('/login', view_func=LoginView.as_view('login'))
-    #app.add_url_rule('/api/reset-password', view_func=PasswordResetView.as_view('password_reset'))
+    app.add_url_rule('/api/signup', view_func=UserView.as_view('user'))
     
+    @app.route('/dashboard.html')
+    def dashboard():
+            return render_template('dashboard.html')
+    
+    @app.route('/dashboard')
+    def dashboard2():
+            return render_template('dashboard.html')
+    
+    # app.add_url_rule('/dashboard', view_func=DashboardView.as_view('dashboard'))
+
+    
+
     # Property routes
     @app.route('/properties')
-    def login_page():
+    def properties_page3():
+        # properties = Property.query.all()
         return render_template('properties.html')
     
-    app.add_url_rule('/properties', view_func=PropertyView.as_view('properties'))
+
+
+    @app.route('/properties.html')
+    def properties_page2():
+        # properties = Property.query.all()
+        return render_template('properties.html')
     
-    
-    app.add_url_rule(
-        '/properties/<property_id>', 
-        view_func=PropertyDetailView.as_view('property_detail')
-    )
-    
+
+
+    app.add_url_rule('/api/properties', view_func=PropertyView.as_view('properties'))
+    app.add_url_rule('/api/properties/overview', view_func=PropertyOverviewView.as_view('properties_overview'))
+
+
     # Occupancy routes
     @app.route('/occupants')
-    def login_page():
+    def occupants_page():
         return render_template('occupants.html')
     
     app.add_url_rule(
@@ -710,7 +891,7 @@ def register_routes(app):
     
     # Document routes
     @app.route('/documents')
-    def login_page():
+    def documents_page():
         return render_template('documents.html')
     
     app.add_url_rule(
@@ -724,7 +905,7 @@ def register_routes(app):
     
     # Income route
     @app.route('/income')
-    def login_page():
+    def income_page():
         return render_template('income.html')
     
     app.add_url_rule(
@@ -774,3 +955,4 @@ if __name__ == '__main__':
     init_app()
     register_routes(app)
     app.run(debug=True)
+

@@ -9,14 +9,15 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/CSS/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
 </head>
 <body>
     <!-- Navbar -->
     <nav style="height: 90px;" class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="index.html">
-                <img src="/images/PropManager_Logo_NoBckg.png" alt="Logo">
+            <a class="navbar-brand" href="landing.html">
+                <img src="{{ url_for('static', filename='images/PropManager_Logo_NoBckg.png') }}" alt="Logo">
+                <!-- <img src="/images/PropManager_Logo_NoBckg.png" alt="Logo"> -->
                 <span>PropManager</span>
             </a>
         </div>
@@ -56,7 +57,7 @@
                                 <label for="phoneNumber" class="form-label">Phone Number</label>
                                 <input type="text" class="form-control" id="phoneNumber" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100" onclick="createAccount()">Create Account</button>
+                            <button type="button" class="btn btn-primary w-100" id="signupButton">Create Account</button>
                         </form>
                         <div class="text-center mt-4">
                             <p>Already have an account?<a href="login.html" class="signup-link"> Login</a></p>
@@ -75,7 +76,8 @@
             <div class="row">
                 <!-- Company Info -->
                 <div class="col-lg-4 mb-4 mb-lg-0">
-                    <img src="/images/PropManager_Logo_NoBckg.png" alt="PropManager Logo" class="footer-logo mb-3">
+                    <!-- <img src="/images/PropManager_Logo_NoBckg.png" alt="PropManager Logo" class="footer-logo mb-3"> -->
+                    <img src="{{ url_for('static', filename='images/PropManager_Logo_NoBckg.png') }}" alt="PropManager Logo" class="footer-logo mb-3">
                     <p class="text-light">Making property management simple and efficient. Your trusted partner in real estate solutions.</p>
                     <div class="social-links mt-3">
                         <a href="#" class="me-2"><i class="fab fa-facebook-f"></i></a>
@@ -142,78 +144,92 @@
             </div>
         </div>
     </footer>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script>
       async function createAccount() {
-    // Form validation
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+        // Form validation
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const phoneNumber = document.getElementById('phoneNumber').value.trim();
 
-    // Basic validation
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !phoneNumber) {
-        alert("Please fill in all fields");
-        return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        alert("Please enter a valid email address");
-        return;
-    }
-
-    // Password validation
-    if (password !== confirmPassword) {
-        alert("Passwords do not match!");
-        return;
-    }
-
-    // Phone number validation
-    const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
-    if (!phoneRegex.test(phoneNumber)) {
-        alert("Please enter a valid phone number in format: 123-456-7890");
-        return;
-    }
-
-    // Prepare request data
-    const requestData = {
-        full_name: `${firstName} ${lastName}`,
-        email: email,
-        password: password,
-        phone_number: phoneNumber
-    };
-
-    try {
-        const response = await fetch('/api/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-                },
-            body: JSON.stringify(requestData)
-        });
-
-        const result = await response.json();
-
-        console.log('Signup result:', result);
-
-        if (response.ok) {
-            alert('Account created successfully!');
-            window.location.href = "/login";
-        } else {
-            // Handle specific error cases
-            if (result.error) {
-                alert(`Error: ${result.error}`);
-            } else {
-                alert('An error occurred during signup');
-            }
+        // Basic validation
+        if (!firstName || !lastName || !email || !password || !confirmPassword || !phoneNumber) {
+            alert("Please fill in all fields");
+            return;
         }
-    } catch (error) {
-        console.error('Signup error:', error);
-        alert('An unexpected error occurred. Please try again.');
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert("Please enter a valid email address");
+            return;
+        }
+
+        // Password validation
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        // Phone number validation
+        const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
+        if (!phoneRegex.test(phoneNumber)) {
+            alert("Please enter a valid phone number in format: 123-456-7890");
+            return;
+        }
+
+        // Prepare request data
+        const requestData = {
+            full_name: `${firstName} ${lastName}`,
+            email: email,
+            password: password,
+            phone_number: phoneNumber
+        };
+
+        const signupButton = document.getElementById('signupButton');
+        signupButton.disabled = true;
+
+        try {
+            const response = await fetch('/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            console.log('Signup result:', result);
+
+            if (response.ok) {
+                alert('Account created successfully!');
+                window.location.href = "/login";
+            } else {
+                // Handle specific error cases
+                if (result.error) {
+                    alert(`Error: ${result.error}`);
+                } else {
+                    alert('An error occurred during signup');
+                }
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('An unexpected error occurred. Please try again.');
+        }
+        finally {
+        // Re-enable the signup button
+        signupButton.disabled = false;
+        }
     }
-}</script>
+
+    document.getElementById('signupButton').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent default form submission
+    createAccount(); // Call the createAccount function
+    });
+</script>
 </body>
 </html>
