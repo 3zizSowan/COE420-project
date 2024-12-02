@@ -358,6 +358,47 @@
     font-size: 0.9rem;
 }
 
+
+/* Property Action Buttons */
+.property-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.property-actions .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.property-actions .btn i {
+    font-size: 0.9rem;
+}
+
+.property-actions .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.property-actions .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.property-actions .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.property-actions .btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .property-stat-card {

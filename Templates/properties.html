@@ -133,6 +133,7 @@
     </div>
 
     <!-- Add Property Modal -->
+
     <div class="modal fade" id="addPropertyModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -145,8 +146,101 @@
                         <div class="row">
                             <!-- Property Type -->
                             <div class="col-md-6 mb-3">
-                                <label for="type" class="form-label">Property Type*</label>
+                                <label for="propertyType" class="form-label">Property Type*</label>
                                 <select class="form-select" id="propertyType" required>
+                                    <option value="">Select property type...</option>
+                                    <option value="villa">Villa</option>
+                                    <option value="apartment">Apartment</option>
+                                    <option value="townhouse">Townhouse</option>
+                                    <option value="commercial">Commercial Unit</option>
+                                </select>
+                            </div>
+
+                            <!-- Total Units -->
+                            <div class="col-md-6 mb-3">
+                                <label for="units" class="form-label">Total Units*</label>
+                                <input type="number" class="form-control" id="units" min="1" required>
+                            </div>
+
+                            <!-- Property Size -->
+                            <div class="col-md-6 mb-3">
+                                <label for="size" class="form-label">Property Size (sq ft)*</label>
+                                <input type="number" id="size" class="form-control" min="1" required>
+                            </div>
+
+                            <!-- Number of Bedrooms -->
+                            <div class="col-md-6 mb-3">
+                                <label for="bedrooms" class="form-label">Number of Bedrooms*</label>
+                                <input type="number" id="bedrooms" class="form-control" min="0" required>
+                            </div>
+
+                            <!-- Street Address -->
+                            <div class="col-md-12 mb-3">
+                                <label for="street" class="form-label">Street Address*</label>
+                                <input id="street" type="text" class="form-control" required>
+                            </div>
+
+                            <!-- City -->
+                            <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label">City*</label>
+                                <input type="text" id="city" class="form-control" required>
+                            </div>
+
+                            <!-- Monthly Rent -->
+                            <div class="col-md-6 mb-3">
+                                <label for="rent" class="form-label">Monthly Rent ($)*</label>
+                                <input type="number" class="form-control" id="rent" min="0" step="0.01" required>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">Status*</label>
+                                <select class="form-select" id="status" required>
+                                    <option value="vacant">Vacant</option>
+                                    <option value="occupied">Occupied</option>
+                                    <option value="maintenance">Under Maintenance</option>
+                                </select>
+                            </div>
+
+                            <!-- Property Description -->
+                            <div class="col-md-12 mb-3">
+                                <label for="description" class="form-label">Property Description</label>
+                                <textarea class="form-control" id="description" rows="3"></textarea>
+                            </div>
+
+                            <!-- Property Images -->
+                            <div class="col-md-12 mb-3">
+                                <label for="images" class="form-label">Property Images</label>
+                                <input type="file" class="form-control" id="images" accept="image/*" multiple>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveProperty">Add Property</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modify Property Modal -->
+    <div class="modal fade" id="modifyPropertyModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modify Property</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modifyPropertyForm" class="needs-validation" novalidate>
+                        <input type="hidden" id="modifyPropertyId">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <!-- Property Type -->
+                                <label for="modifyPropertyType" class="form-label">Property Type*</label>
+                                <select class="form-select" id="modifyPropertyType" required>
                                     <option value="">Select property type...</option>
                                     <option value="villa">Villa</option>
                                     <option value="apartment">Apartment</option>
@@ -157,11 +251,11 @@
                                     Please select a property type.
                                 </div>
                             </div>
-    
+
                             <!-- Total Units -->
                             <div class="col-md-6 mb-3">
                                 <label for="units" class="form-label">Total Units*</label>
-                                <input type="number" class="form-control" id="units" min="1" required>
+                                <input type="number" class="form-control" id="modifyUnits" min="1" required>
                                 <div class="invalid-feedback">
                                     Please enter the total number of units.
                                 </div>
@@ -170,7 +264,7 @@
                             <!-- Property Size -->
                             <div class="col-md-6 mb-3">
                                 <label for="size" class="form-label">Property Size (sq ft)*</label>
-                                <input type="number" id="size" class="form-control" min="1" required>
+                                <input type="number" id="modifySize" class="form-control" min="1" required>
                                 <div class="invalid-feedback">
                                     Please enter a valid property size.
                                 </div>
@@ -179,7 +273,7 @@
                             <!-- Number of Bedrooms -->
                             <div class="col-md-6 mb-3">
                                 <label for="bedrooms" class="form-label">Number of Bedrooms*</label>
-                                <input type="number" id="bedrooms" class="form-control" min="0" required>
+                                <input type="number" id="modifyBedrooms" class="form-control" min="0" required>
                                 <div class="invalid-feedback">
                                     Please enter the number of bedrooms.
                                 </div>
@@ -188,7 +282,7 @@
                             <!-- Street Address -->
                             <div class="col-md-12 mb-3">
                                 <label for="street" class="form-label">Street Address*</label>
-                                <input id="street" type="text" class="form-control"
+                                <input id="modifyStreet" type="text" class="form-control"
                                        pattern="^[0-9]+\s+([a-zA-Z]+\s*)+$"
                                        placeholder="123 Main Street" required>
                                 <div class="invalid-feedback">
@@ -199,14 +293,14 @@
                             <!-- Unit/Floor Details -->
                             <div class="col-md-6 mb-3">
                                 <label for="unit" class="form-label">Unit/Floor Number</label>
-                                <input id="unit" type="text" class="form-control" 
+                                <input id="modifyUnit" type="text" class="form-control" 
                                        placeholder="Apt 4B, Floor 3, etc.">
                             </div>
     
                             <!-- City -->
                             <div class="col-md-6 mb-3">
                                 <label for="city" class="form-label">City*</label>
-                                <input type="text" id="city" class="form-control" required>
+                                <input type="text" id="modifyCity" class="form-control" required>
                                 <div class="invalid-feedback">
                                     Please enter a city name.
                                 </div>
@@ -215,7 +309,7 @@
                             <!-- Monthly Rent -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Monthly Rent ($)*</label>
-                                <input type="number" class="form-control" id="rent" min="0" step="0.01" required>
+                                <input type="number" class="form-control" id="modifyRent" min="0" step="0.01" required>
                                 <div class="invalid-feedback">
                                     Please enter a valid monthly rent amount.
                                 </div>
@@ -224,7 +318,7 @@
                             <!-- Status -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status*</label>
-                                <select class="form-select" id="status" required>
+                                <select class="form-select" id="modifyStatus" required>
                                     <option value="vacant">Vacant</option>
                                     <!-- <option value="occupied">Occupied</option>
                                     <option value="maintenance">Under Maintenance</option> -->
@@ -237,27 +331,32 @@
                             <!-- Property Description -->
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Property Description</label>
-                                <textarea class="form-control" id="description" rows="3"></textarea>
+                                <textarea class="form-control" id="modifyDescription" rows="3"></textarea>
                             </div>
     
                             <!-- Property Images -->
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Property Images</label>
-                            <input type="file" class="form-control" id="images" name="image" accept="image/*" multiple>
+                            <input type="file" class="form-control" id="modifyImages" name="image" accept="image/*" multiple>
                             <div class="form-text">
                                 Upload multiple images of the property (optional).
                             </div>
                         </div>
+                        
+                            
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveProperty">Save Property</button>
+                    <button type="button" class="btn btn-success" id="saveModifiedProperty">Save Changes</button>
                 </div>
             </div>
         </div>
     </div>
+
+
+
 
     <!-- Delete Property Modal -->
     <div class="modal fade" id="deletePropertyModal" tabindex="-1">
@@ -346,7 +445,8 @@
     }
 
     async function addProperty() {
-        // Form validation
+
+
         const propertyType = document.getElementById('propertyType').value.trim();
         const streetName = document.getElementById('street').value.trim();
         const city = document.getElementById('city').value.trim();
@@ -478,25 +578,192 @@
                                     <span>$${property.rent_per_month}/month</span>
                                 </div>
                             </div>
+                            <div class="property-actions mt-3 d-flex gap-2">
+                                <button class="btn btn-success" onclick="openModifyModal('${property.property_id}')">
+                                    <i class="fas fa-edit"></i> Modify
+                                </button>
+                                <button class="btn btn-danger" onclick="openDeleteModal('${property.property_id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>`;
             propertiesGrid.insertAdjacentHTML('beforeend', propertyCard);
         });
+    }    
+   
+    async function openModifyModal(propertyId) {
+        try {
+            const response = await fetch(`/api/properties/${propertyId}`);
+            if (!response.ok) throw new Error('Failed to fetch property details');
+            
+            const property = await response.json();
+            
+            // Set the property ID in the hidden input
+            document.getElementById('modifyPropertyId').value = propertyId;
+            
+            // Populate the modify form with existing data
+            document.getElementById('modifyPropertyType').value = property.property_type;
+            document.getElementById('modifyUnits').value = property.units;
+            document.getElementById('modifySize').value = property.size_sqft;
+            document.getElementById('modifyBedrooms').value = property.bedrooms;
+            document.getElementById('modifyStreet').value = property.street_name;
+            document.getElementById('modifyUnit').value = property.unit || '';
+            document.getElementById('modifyCity').value = property.city;
+            document.getElementById('modifyRent').value = property.rent_per_month;
+            document.getElementById('modifyStatus').value = property.occupancy_status;
+            document.getElementById('modifyDescription').value = property.building_details || '';
+
+            // Show the modal
+            const modifyModal = new bootstrap.Modal(document.getElementById('modifyPropertyModal'));
+            modifyModal.show();
+        } catch (error) {
+            console.error('Error fetching property details:', error);
+            alert('Failed to load property details. Please try again.');
+        }
+    }
+    // Function to handle property modification
+    async function modifyProperty() {
+        const propertyId = document.getElementById('modifyPropertyId').value;
+        
+        // Validation
+        // Form validation
+        const propertyType = document.getElementById('modifyPropertyType').value.trim();
+        const streetName = document.getElementById('modifyStreet').value.trim();
+        const city = document.getElementById('modifyCity').value.trim();
+        const size = parseFloat(document.getElementById('modifySize').value.trim());
+        const bedrooms = parseInt(document.getElementById('modifyBedrooms').value.trim());
+        const rentPerMonth = parseFloat(document.getElementById('modifyRent').value.trim());
+        const units = parseInt(document.getElementById('modifyUnits').value.trim());
+        const status = document.getElementById('modifyStatus').value;
+        const buildingDetails = document.getElementById('modifyDescription').value.trim();
+
+        // Basic validation
+        if (!propertyType || !streetName || !city || !size || !bedrooms || !rentPerMonth || !units || !status) {
+            alert("Please fill in all required fields");
+            return;
+        }
+
+        // Street Name Validation
+        const addressRegex = /^[0-9]+\s+([a-zA-Z]+\s*)+$/;
+        if (!addressRegex.test(streetName)) {
+            alert("Please enter a valid street address (e.g., 123 Main Street)");
+            return;
+        }
+
+        // Numeric Validation
+        if (size <= 0 || bedrooms <= 0 || rentPerMonth <= 0 || units <= 0) {
+            alert("Numeric fields must be positive values");
+            return;
+        }
+
+        
+
+        const propertyData = {
+            property_type: propertyType,
+            street_name: streetName,
+            city: city,
+            size_sqft: size,
+            bedrooms: bedrooms,
+            rent_per_month: rentPerMonth,
+            units: units,
+            occupancy_status: status,
+            building_details: buildingDetails
+        };
+
+        try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(propertyData)
+            });
+
+            if (!response.ok) throw new Error('Failed to update property');
+
+            alert('Property updated successfully!');
+            fetchProperties(); // Refresh the property list
+            fetchPropertiesOverview();
+            
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modifyPropertyModal'));
+            modal.hide();
+        } catch (error) {
+            console.error('Error updating property:', error);
+            alert('Failed to update property. Please try again.');
+        }
     }
 
+    // open delete property function
+    async function openDeleteModal(propertyId) {
+    try {
+        const response = await fetch(`/api/properties/${propertyId}`);
+        if (!response.ok) throw new Error('Failed to fetch property details');
+
+        const property = await response.json();
+
+        // Update the delete modal content
+        const propertyDetails = document.getElementById('propertyDetails');
+        propertyDetails.innerHTML = `
+            <div class="alert alert-info">
+                <h6>${property.street_name}, ${property.city}</h6>
+                <p>${property.property_type} - ${property.units} Units</p>
+            </div>`;
+
+        // Store property ID for delete confirmation
+        document.getElementById('confirmDelete').dataset.propertyId = propertyId;
+
+           // Show the modal
+            const deleteModal = new bootstrap.Modal(document.getElementById('deletePropertyModal'));
+            deleteModal.show();
+        } catch (error) {
+            console.error('Error preparing delete modal:', error);
+            alert('Failed to load property information. Please try again.');
+        }
+    }
+
+    // Function to handle property deletion
+    async function deleteProperty(propertyId) {
+        try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error('Failed to delete property');
+
+            alert('Property deleted successfully!');
+            fetchProperties(); // Refresh the property list
+            fetchPropertiesOverview(); // Update the overview numbers
+
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deletePropertyModal'));
+            modal.hide();
+        } catch (error) {
+            console.error('Error deleting property:', error);
+            alert('Failed to delete property. Please try again.');
+        }
+    }
+
+
+
+    
     // Call fetchProperties on page load to display existing properties
     document.addEventListener('DOMContentLoaded', fetchProperties);
     document.addEventListener('DOMContentLoaded', fetchPropertiesOverview);
-
-
-
-        // Attach the addProperty function to the Save button
-        document.getElementById('saveProperty').addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('calling fxn app prop')
-            addProperty();
+    // Add event listener for modify property form submission
+    document.getElementById('saveModifiedProperty').addEventListener('click', modifyProperty);
+    // Add event listener for delete confirmation
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+            const propertyId = this.dataset.propertyId;
+            deleteProperty(propertyId);
         });
+
+    // Attach the addProperty function to the Save button
+    document.getElementById('saveProperty').addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('calling fxn app prop')
+        addProperty();
+    });
  </script>
 </body>
 </html>

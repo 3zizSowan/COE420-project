@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Occupants Info - PropManager</title>
-    <link rel="stylesheet" href="/CSS/occupants.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/occupants.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -13,7 +13,7 @@
     <nav style="height: 90px;" class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="dashboard.html">
-                <img src="/images/PropManager_Logo_NoBckg.png" alt="Logo">
+                <img src="{{ url_for('static', filename='images/PropManager_Logo_NoBckg.png') }}" alt="Logo">
                 <span>PropManager</span>
             </a>
 
@@ -107,76 +107,262 @@
             </div>
         </div>
 
-        <!-- Occupants List -->
+        <!-- Occupants -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="occupants-list-card">
-                    <h3>Current Occupants</h3>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Unit</th>
-                                    <th>Move-in Date</th>
-                                    <th>Lease End Date</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="occupant-info">
-                                            <img src="/placeholder.svg?height=40&width=40" alt="John Doe" class="occupant-avatar">
-                                            <div>
-                                                <h6>John Doe</h6>
-                                                <small>john.doe@email.com</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>Unit 101</td>
-                                    <td>Jan 15, 2024</td>
-                                    <td>Jan 14, 2025</td>
-                                    <td><span class="status-badge active">Active</span></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-outline-primary me-2">View</button>
-                                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="occupant-info">
-                                            <img src="/placeholder.svg?height=40&width=40" alt="Jane Smith" class="occupant-avatar">
-                                            <div>
-                                                <h6>Jane Smith</h6>
-                                                <small>jane.smith@email.com</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>Unit 205</td>
-                                    <td>Mar 1, 2024</td>
-                                    <td>Feb 28, 2025</td>
-                                    <td><span class="status-badge pending">Pending</span></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-outline-primary me-2">View</button>
-                                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Add more rows as needed -->
-                            </tbody>
-                        </table>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Add New Occupancy</h5>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOccupancyModal">
+                            <i class="fas fa-plus"></i> Add Occupancy
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+
+    <!-- Add Occupancy Modal -->
+    <div class="modal fade" id="addOccupancyModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Occupancy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addOccupancyForm" class="needs-validation" novalidate>
+                        <!-- Property Selection -->
+                        <div class="mb-3">
+                            <label for="propertySelect" class="form-label">Select Property*</label>
+                            <select class="form-select" id="propertySelect" required>
+                                <option value="">Choose a property...</option>
+                                <!-- Properties will be loaded dynamically -->
+                            </select>
+                            <div class="invalid-feedback">Please select a property.</div>
+                        </div>
+
+                        <!-- Tenant Information -->
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="tenantName" class="form-label">Tenant Name*</label>
+                                <input type="text" class="form-control" id="tenantName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tenantPhone" class="form-label">Phone Number*</label>
+                                <input type="tel" class="form-control" id="tenantPhone" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tenantEmail" class="form-label">Email*</label>
+                                <input type="email" class="form-control" id="tenantEmail" required>
+                            </div>
+                        </div>
+
+                        <!-- Lease Information -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="leaseStart" class="form-label">Lease Start Date*</label>
+                                <input type="date" class="form-control" id="leaseStart" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="leaseEnd" class="form-label">Lease End Date*</label>
+                                <input type="date" class="form-control" id="leaseEnd" required>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="totalRent" class="form-label">Total Rent Amount*</label>
+                                <input type="number" class="form-control" id="totalRent" min="0" step="0.01" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="numberOfPayments" class="form-label">Number of Payments*</label>
+                                <input type="number" class="form-control" id="numberOfPayments" min="1" required>
+                            </div>
+                        </div>
+
+                        <!-- Payment Schedule -->
+                        <div id="paymentSchedule" class="d-none">
+                            <h6 class="mt-3">Payment Schedule</h6>
+                            <div id="paymentsList">
+                                <!-- Payment entries will be generated here -->
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="previewButton">Preview Schedule</button>
+                    <button type="button" class="btn btn-success d-none" id="confirmButton">Confirm & Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Occupancy Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="occupancySummary">
+                        <!-- Summary will be populated dynamically -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Edit</button>
+                    <button type="button" class="btn btn-primary" id="finalConfirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load vacant properties when the modal opens
+        document.getElementById('addOccupancyModal').addEventListener('show.bs.modal', async function () {
+            await loadVacantProperties();
+        });
+
+        // Load vacant properties
+        async function loadVacantProperties() {
+            try {
+                const response = await fetch('/api/properties');
+                if (!response.ok) throw new Error('Failed to fetch properties');
+                
+                const properties = await response.json();
+                const vacantProperties = properties.filter(p => p.occupancy_status === 'vacant');
+                
+                const select = document.getElementById('propertySelect');
+                select.innerHTML = '<option value="">Choose a property...</option>';
+                
+                vacantProperties.forEach(property => {
+                    select.innerHTML += `
+                        <option value="${property.property_id}">
+                            ${property.street_name}, ${property.city}
+                        </option>`;
+                });
+            } catch (error) {
+                console.error('Error loading properties:', error);
+                alert('Failed to load properties. Please try again.');
+            }
+        }
+
+        // Generate payment schedule
+        document.getElementById('previewButton').addEventListener('click', function() {
+            const form = document.getElementById('addOccupancyForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const totalRent = parseFloat(document.getElementById('totalRent').value);
+            const numberOfPayments = parseInt(document.getElementById('numberOfPayments').value);
+            const leaseStart = new Date(document.getElementById('leaseStart').value);
+            const leaseEnd = new Date(document.getElementById('leaseEnd').value);
+
+            // Validate dates
+            if (leaseStart >= leaseEnd) {
+                alert('Lease start date must be before end date');
+                return;
+            }
+
+            const paymentAmount = totalRent / numberOfPayments;
+            const paymentsList = document.getElementById('paymentsList');
+            paymentsList.innerHTML = '';
+
+            for (let i = 0; i < numberOfPayments; i++) {
+                const paymentDate = new Date(leaseStart);
+                paymentDate.setMonth(paymentDate.getMonth() + i);
+
+                if (paymentDate > leaseEnd) {
+                    alert('Payment dates exceed lease end date');
+                    return;
+                }
+
+                paymentsList.innerHTML += `
+                    <div class="row mb-2">
+                        <div class="col-md-4">
+                            <input type="date" class="form-control payment-date" 
+                                   value="${paymentDate.toISOString().split('T')[0]}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="number" class="form-control payment-amount" 
+                                   value="${paymentAmount.toFixed(2)}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select payment-status">
+                                <option value="due">Due</option>
+                                <option value="paid">Paid</option>
+                            </select>
+                        </div>
+                    </div>`;
+            }
+
+            document.getElementById('paymentSchedule').classList.remove('d-none');
+            document.getElementById('confirmButton').classList.remove('d-none');
+        });
+
+        // Handle form submission
+        document.getElementById('confirmButton').addEventListener('click', async function() {
+            const occupancyData = {
+                property_id: document.getElementById('propertySelect').value,
+                tenant_name: document.getElementById('tenantName').value,
+                tenant_phone: document.getElementById('tenantPhone').value,
+                tenant_email: document.getElementById('tenantEmail').value,
+                lease_start_date: document.getElementById('leaseStart').value,
+                lease_end_date: document.getElementById('leaseEnd').value,
+                total_rent: parseFloat(document.getElementById('totalRent').value),
+                number_of_payments: parseInt(document.getElementById('numberOfPayments').value),
+                payments: Array.from(document.querySelectorAll('.row.mb-2')).map(row => ({
+                    date: row.querySelector('.payment-date').value,
+                    amount: parseFloat(row.querySelector('.payment-amount').value),
+                    status: row.querySelector('.payment-status').value
+                }))
+            };
+
+            // Show confirmation modal with summary
+            const summary = document.getElementById('occupancySummary');
+            summary.innerHTML = `
+                <p><strong>Property:</strong> ${document.getElementById('propertySelect').selectedOptions[0].text}</p>
+                <p><strong>Tenant:</strong> ${occupancyData.tenant_name}</p>
+                <p><strong>Lease Period:</strong> ${occupancyData.lease_start_date} to ${occupancyData.lease_end_date}</p>
+                <p><strong>Total Rent:</strong> $${occupancyData.total_rent}</p>
+                <p><strong>Number of Payments:</strong> ${occupancyData.number_of_payments}</p>
+            `;
+
+            const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            confirmationModal.show();
+
+            // Handle final confirmation
+            document.getElementById('finalConfirmButton').onclick = async function() {
+                try {
+                    const response = await fetch(`/api/properties/${occupancyData.property_id}/occupancy`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(occupancyData)
+                    });
+
+                    if (!response.ok) throw new Error('Failed to add occupancy');
+
+                    alert('Occupancy added successfully!');
+                    location.reload(); // Refresh the page to show new occupancy
+                } catch (error) {
+                    console.error('Error adding occupancy:', error);
+                    alert('Failed to add occupancy. Please try again.');
+                }
+            };
+        });
+    </script>
+
 </body>
 </html>

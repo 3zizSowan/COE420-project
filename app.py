@@ -8,9 +8,9 @@ import os
 import uuid
 from flask_cors import CORS
 from flask_migrate import Migrate
-import os 
+import os
 from werkzeug.utils import secure_filename
-
+from datetime import datetime
 
 
 app = Flask(__name__, template_folder='Templates')
@@ -20,9 +20,17 @@ app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///property_management.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
-ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'}
+UPLOAD_FOLDER = os.path.join('static', 'images', 'properties')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Make sure the upload directory exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 
 db = SQLAlchemy(app)
+app.app_context().push()
 migrate = Migrate(app, db)
 # Helper functions
 def allowed_file(filename):
@@ -82,7 +90,8 @@ class Property(db.Model):
     notifications = db.relationship('Notification', backref='property', lazy=True)
     rent_per_month = db.Column(db.Float, nullable=False)
     units = db.Column(db.Integer, nullable=False)
-    
+    image = db.Column(db.String(255))
+
     def add_occupancy(self, tenant_data):
         if self.occupancy_status == 'occupied':
             raise ValueError("Property is already occupied")
@@ -272,38 +281,6 @@ class LoginView(MethodView):
             return jsonify({'message': 'Login successful'}), 200
         return jsonify({'error': 'Invalid credentials'}), 401
 
-# probably wrong:
-# class DashboardView(MethodView):
-#     def get(self):
-#         """Get dashboard summary"""
-#         # Fetch the logged-in user
-#         user = User.query.get(session['user_id'])
-        
-#         # Fetch all properties for the user
-#         properties = Property.query.filter_by(user_id=user.user_id).all()
-
-#         # Calculate dashboard summary
-#         summary = {
-#             'properties': {
-#                 'total': len(properties),
-#                 'vacant': sum(1 for p in properties if p.occupancy_status == 'vacant'),
-#                 'occupied': sum(1 for p in properties if p.occupancy_status == 'occupied')
-#             },
-#             'finances': {
-#                 'total_income': sum(p.get_income_summary()['total_paid'] for p in properties if p.current_occupancy),
-#                 'total_pending': sum(p.get_income_summary()['total_due'] for p in properties if p.current_occupancy),
-#             },
-#             'upcoming_renewals': sum(
-#                 1 for p in properties 
-#                 if p.current_occupancy and 
-#                 (p.current_occupancy.lease_end_date - datetime.now().date()).days <= 30
-#             )
-#         }
-
-#         return jsonify(summary), 200   
-
-
-
 class PasswordResetView(AuthenticatedMethodView):
     def post(self):
         """Handle password reset"""
@@ -324,25 +301,14 @@ class PasswordResetView(AuthenticatedMethodView):
             return jsonify({'error': str(e)}), 400
 
 class PropertyView(AuthenticatedMethodView):
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-    def allowed_file(self, filename):
-        return '.' in filename and filename.rsplit('.', 1)[1].lower() in self.ALLOWED_EXTENSIONS
-
-
     def post(self):
         """Add a new property"""
         if 'user_id' not in session:
             return jsonify({'error': 'User not logged in'}), 401
 
-        data = request.form  # Use form data to handle both JSON and file inputs
-        image_file = request.files.get('image')
+        data = request.json  # Use form data to handle both JSON and file inputs
 
-        # Check if image is provided and valid
-        image_filename = None
-        if image_file and self.allowed_file(image_file.filename):
-            image_filename = secure_filename(image_file.filename)
-            image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
-
+        
         # Ensure required fields are present
         required_fields = ['property_type', 'street_name', 'city', 'size_sqft', 'bedrooms', 'units', 'rent_per_month', 'occupancy_status']
         missing_fields = [field for field in required_fields if field not in data]
@@ -362,7 +328,8 @@ class PropertyView(AuthenticatedMethodView):
                 units=int(data['units']),
                 rent_per_month=float(data['rent_per_month']),
                 occupancy_status=data['occupancy_status'],
-                image=image_filename  # Save the image filename in the database
+                image='default.jpg'
+
             )
 
             db.session.add(new_property)
@@ -406,7 +373,6 @@ class PropertyView(AuthenticatedMethodView):
             for p in properties
         ]
         return jsonify(properties_data), 200
-        # return render_template('properties.html', properties=properties_data)   
 
 
 class PropertyDetailView(AuthenticatedMethodView):
@@ -416,21 +382,34 @@ class PropertyDetailView(AuthenticatedMethodView):
             property_id=property_id, 
             user_id=session['user_id']
         ).first_or_404()
-        
+
         return jsonify({
-            'property': {
-                'property_id': property.property_id,
-                'property_type': property.property_type,
-                'street_name': property.street_name,
-                'city': property.city,
-                'building_details': property.building_details,
-                'size_sqft': property.size_sqft,
-                'bedrooms': property.bedrooms,
-                'occupancy_status': property.occupancy_status
-            },
-            'occupancy': property.current_occupancy.to_dict() if property.current_occupancy else None,
-            'income_summary': property.get_income_summary()
+            'property_id': property.property_id,
+            'property_type': property.property_type,
+            'street_name': property.street_name,
+            'city': property.city,
+            'building_details': property.building_details,
+            'size_sqft': property.size_sqft,
+            'bedrooms': property.bedrooms,
+            'units': property.units,
+            'rent_per_month': property.rent_per_month,
+            'occupancy_status': property.occupancy_status
         }), 200
+        
+        # return jsonify({
+        #     'property': {
+        #         'property_id': property.property_id,
+        #         'property_type': property.property_type,
+        #         'street_name': property.street_name,
+        #         'city': property.city,
+        #         'building_details': property.building_details,
+        #         'size_sqft': property.size_sqft,
+        #         'bedrooms': property.bedrooms,
+        #         'occupancy_status': property.occupancy_status
+        #     },
+        #     'occupancy': property.current_occupancy.to_dict() if property.current_occupancy else None,
+        #     'income_summary': property.get_income_summary()
+        # }), 200
 
     def put(self, property_id):
         """Update a property"""
@@ -856,32 +835,47 @@ def register_routes(app):
     def dashboard2():
             return render_template('dashboard.html')
     
-    # app.add_url_rule('/dashboard', view_func=DashboardView.as_view('dashboard'))
-
-    
-
     # Property routes
     @app.route('/properties')
     def properties_page3():
-        # properties = Property.query.all()
         return render_template('properties.html')
-    
-
 
     @app.route('/properties.html')
     def properties_page2():
-        # properties = Property.query.all()
         return render_template('properties.html')
     
-
+    @app.route('/api/properties/<property_id>', methods=['GET'])
+    def get_property_details(property_id):
+        property = Property.query.filter_by(property_id=property_id, user_id=session['user_id']).first_or_404()
+        return jsonify({
+            'property_id': property.property_id,
+            'property_type': property.property_type,
+            'street_name': property.street_name,
+            'city': property.city,
+            'building_details': property.building_details,
+            'size_sqft': property.size_sqft,
+            'bedrooms': property.bedrooms,
+            'units': property.units,
+            'rent_per_month': property.rent_per_month,
+            'occupancy_status': property.occupancy_status
+        }), 200
 
     app.add_url_rule('/api/properties', view_func=PropertyView.as_view('properties'))
+    app.add_url_rule(
+        '/api/properties/<property_id>', 
+        view_func=PropertyDetailView.as_view('property_detail'),
+        methods=['GET', 'PUT', 'DELETE']  # Add methods explicitly
+    )
     app.add_url_rule('/api/properties/overview', view_func=PropertyOverviewView.as_view('properties_overview'))
 
 
     # Occupancy routes
     @app.route('/occupants')
     def occupants_page():
+        return render_template('occupants.html')
+    
+    @app.route('/occupants.html')
+    def occupants_page2():
         return render_template('occupants.html')
     
     app.add_url_rule(
@@ -892,6 +886,10 @@ def register_routes(app):
     # Document routes
     @app.route('/documents')
     def documents_page():
+        return render_template('documents.html')
+    
+    @app.route('/documents.html')
+    def documents_page2():
         return render_template('documents.html')
     
     app.add_url_rule(
@@ -906,6 +904,10 @@ def register_routes(app):
     # Income route
     @app.route('/income')
     def income_page():
+        return render_template('income.html')
+    
+    @app.route('/income.html')
+    def income_page2():
         return render_template('income.html')
     
     app.add_url_rule(
