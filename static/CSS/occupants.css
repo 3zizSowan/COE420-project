@@ -232,6 +232,26 @@
     font-size: 0.875rem;
 }
 
+/* Occupant Card Styles */
+.occupant-details p {
+    margin-bottom: 0.5rem;
+}
+
+.occupant-details i {
+    width: 20px;
+    color: rgb(0, 47, 108);
+}
+
+.card-actions {
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 0.5em 0.8em;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .occupants-container {

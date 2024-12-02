@@ -451,24 +451,93 @@ class PropertyDetailView(AuthenticatedMethodView):
             return jsonify({'error': str(e)}), 400
 
 class OccupancyView(AuthenticatedMethodView):
+    # def post(self, property_id):
+    #     """Add new occupancy to a property"""
+    #     property = Property.query.filter_by(
+    #         property_id=property_id, 
+    #         user_id=session['user_id']
+    #     ).first_or_404()
+
+    #     data = request.json
+    #     if not validate_dates(data['lease_start_date'], data['lease_end_date']):
+    #         return jsonify({'error': 'Invalid date range'}), 400
+
+    #     try:
+    #         occupancy = property.add_occupancy(data)
+    #         occupancy.generate_payment_schedule(data['number_of_payments'])
+    #         return jsonify({'message': 'Occupancy added successfully'}), 201
+    #     except Exception as e:
+    #         db.session.rollback()
+    #         return jsonify({'error': str(e)}), 400
+
     def post(self, property_id):
         """Add new occupancy to a property"""
-        property = Property.query.filter_by(
-            property_id=property_id, 
-            user_id=session['user_id']
-        ).first_or_404()
-
-        data = request.json
-        if not validate_dates(data['lease_start_date'], data['lease_end_date']):
-            return jsonify({'error': 'Invalid date range'}), 400
-
         try:
-            occupancy = property.add_occupancy(data)
-            occupancy.generate_payment_schedule(data['number_of_payments'])
-            return jsonify({'message': 'Occupancy added successfully'}), 201
-        except Exception as e:
-            db.session.rollback()
+            property = Property.query.filter_by(
+                property_id=property_id, 
+                user_id=session['user_id']
+            ).first_or_404()
+
+            if property.occupancy_status != 'vacant':
+                return jsonify({'error': 'Property is not vacant'}), 400
+
+            data = request.json
+            self.validate_occupancy_data(data)
+
+            # Begin transaction
+            db.session.begin_nested()
+
+            try:
+                # Create occupancy record
+                occupancy = Occupancy(
+                    property_id=property_id,
+                    tenant_name=data['tenant_name'],
+                    tenant_phone=data['tenant_phone'],
+                    tenant_email=data['tenant_email'],
+                    lease_start_date=datetime.strptime(data['lease_start_date'], '%Y-%m-%d'),
+                    lease_end_date=datetime.strptime(data['lease_end_date'], '%Y-%m-%d'),
+                    total_rent=float(data['total_rent'])
+                )
+                db.session.add(occupancy)
+                db.session.flush()  # Get occupancy_id
+
+                # Generate payment schedule
+                payment_amount = data['total_rent'] / data['number_of_payments']
+                start_date = datetime.strptime(data['lease_start_date'], '%Y-%m-%d')
+
+                for i in range(data['number_of_payments']):
+                    due_date = start_date + timedelta(days=(30 * i))
+                    payment = Payment(
+                        occupancy_id=occupancy.occupancy_id,
+                        amount=payment_amount,
+                        due_date=due_date,
+                        status='due'
+                    )
+                    db.session.add(payment)
+
+                # Update property status
+                property.occupancy_status = 'occupied'
+                
+                # Commit transaction
+                db.session.commit()
+
+                return jsonify({
+                    'message': 'Occupancy added successfully',
+                    'occupancy_id': occupancy.occupancy_id,
+                    'payment_schedule': [{
+                        'due_date': payment.due_date.strftime('%Y-%m-%d'),
+                        'amount': payment.amount
+                    } for payment in occupancy.payments]
+                }), 201
+
+            except Exception as e:
+                db.session.rollback()
+                raise e
+
+        except ValueError as e:
             return jsonify({'error': str(e)}), 400
+        except Exception as e:
+            return jsonify({'error': f"Failed to add occupancy: {str(e)}"}), 500
 
     def put(self, property_id):
         """Update occupancy details"""
@@ -510,6 +579,37 @@ class OccupancyView(AuthenticatedMethodView):
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': str(e)}), 400
+
+    def validate_occupancy_data(self, data):
+        """Validate occupancy data"""
+        required_fields = [
+            'tenant_name', 'tenant_phone', 'tenant_email',
+            'lease_start_date', 'lease_end_date', 'total_rent',
+            'number_of_payments'
+        ]
+        
+        if not all(field in data for field in required_fields):
+            raise ValueError(f"Missing required fields: {', '.join(set(required_fields) - set(data.keys()))}")
+
+        # Validate dates
+        try:
+            start_date = datetime.strptime(data['lease_start_date'], '%Y-%m-%d')
+            end_date = datetime.strptime(data['lease_end_date'], '%Y-%m-%d')
+            if start_date >= end_date:
+                raise ValueError("Lease start date must be before end date")
+            if start_date < datetime.now():
+                raise ValueError("Lease start date cannot be in the past")
+        except ValueError as e:
+            raise ValueError(f"Invalid date format: {str(e)}")
+
+        # Validate rent and payments
+        if float(data['total_rent']) <= 0:
+            raise ValueError("Total rent must be greater than 0")
+        if int(data['number_of_payments']) <= 0:
+            raise ValueError("Number of payments must be greater than 0")
+
+        return True
+
 
 class DocumentView(AuthenticatedMethodView):
     def get(self, property_id):
@@ -791,6 +891,34 @@ class PropertyOverviewView(AuthenticatedMethodView):
             'vacant_properties': vacant_properties
         })
 
+class VacantPropertiesView(AuthenticatedMethodView):
+    def get(self):
+        """Get all vacant properties for the logged-in user"""
+        if 'user_id' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        try:
+            vacant_properties = Property.query.filter_by(
+                user_id=session['user_id'],
+                occupancy_status='vacant'
+            ).all()
+
+            properties_data = [{
+                'property_id': p.property_id,
+                'property_type': p.property_type,
+                'street_name': p.street_name,
+                'city': p.city,
+                'size_sqft': p.size_sqft,
+                'bedrooms': p.bedrooms,
+                'rent_per_month': p.rent_per_month,
+                'units': p.units,
+                'image': p.image or 'default.jpg'
+            } for p in vacant_properties]
+
+            return jsonify(properties_data), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
 
 def register_routes(app):
     """Register all routes with the Flask app"""
@@ -877,12 +1005,107 @@ def register_routes(app):
     @app.route('/occupants.html')
     def occupants_page2():
         return render_template('occupants.html')
-    
+
     app.add_url_rule(
-        '/api/properties/<property_id>/occupancy', 
+        '/api/properties/vacant',
+        view_func=VacantPropertiesView.as_view('vacant_properties')
+    )
+    app.add_url_rule(
+        '/api/properties/<property_id>/occupancy',
         view_func=OccupancyView.as_view('occupancy')
     )
     
+    @app.route('/api/occupants', methods=['GET'])
+    def get_occupants():
+        try:
+            # Assuming you have a user_id in session
+            user_id = session.get('user_id')
+            if not user_id:
+                return jsonify({'error': 'Not authenticated'}), 401
+
+            # Join with properties to get property information
+            occupants = db.session.query(
+                Occupancy, Property
+            ).join(
+                Property, Occupancy.property_id == Property.property_id
+            ).filter(
+                Property.user_id == user_id
+            ).all()
+
+            occupants_list = [{
+                'occupancy_id': occ.Occupancy.occupancy_id,
+                'property_id': occ.Property.property_id,
+                'property_address': f"{occ.Property.street_name}, {occ.Property.city}",
+                'tenant_name': occ.Occupancy.tenant_name,
+                'tenant_phone': occ.Occupancy.tenant_phone,
+                'tenant_email': occ.Occupancy.tenant_email,
+                'lease_start_date': occ.Occupancy.lease_start_date.strftime('%Y-%m-%d'),
+                'lease_end_date': occ.Occupancy.lease_end_date.strftime('%Y-%m-%d'),
+                'total_rent': float(occ.Occupancy.total_rent),
+                'status': occ.Occupancy.status
+            } for occ in occupants]
+
+            return jsonify(occupants_list)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # Get single occupant
+    @app.route('/api/occupants/<int:occupancy_id>', methods=['GET'])
+    def get_occupant2(occupancy_id):
+        try:
+            occupant = Occupancy.query.get_or_404(occupancy_id)
+            return jsonify({
+                'occupancy_id': occupant.occupancy_id,
+                'tenant_name': occupant.tenant_name,
+                'tenant_phone': occupant.tenant_phone,
+                'tenant_email': occupant.tenant_email,
+                'lease_start_date': occupant.lease_start_date.strftime('%Y-%m-%d'),
+                'lease_end_date': occupant.lease_end_date.strftime('%Y-%m-%d'),
+                'total_rent': float(occupant.total_rent),
+                'status': occupant.status
+            })
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # Update occupant
+    @app.route('/api/occupants/<int:occupancy_id>', methods=['PUT'])
+    def update_occupant(occupancy_id):
+        try:
+            occupant = Occupancy.query.get_or_404(occupancy_id)
+            data = request.json
+
+            occupant.tenant_name = data['tenant_name']
+            occupant.tenant_phone = data['tenant_phone']
+            occupant.tenant_email = data['tenant_email']
+            occupant.lease_start_date = datetime.strptime(data['lease_start_date'], '%Y-%m-%d')
+            occupant.lease_end_date = datetime.strptime(data['lease_end_date'], '%Y-%m-%d')
+            occupant.total_rent = data['total_rent']
+            occupant.status = data['status']
+
+            db.session.commit()
+            return jsonify({'message': 'Occupant updated successfully'})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
+    # Delete occupant
+    @app.route('/api/occupants/<int:occupancy_id>', methods=['DELETE'])
+    def delete_occupant(occupancy_id):
+        try:
+            occupant = Occupancy.query.get_or_404(occupancy_id)
+            
+            # Update property status to vacant
+            property = Property.query.get(occupant.property_id)
+            property.occupancy_status = 'vacant'
+            
+            db.session.delete(occupant)
+            db.session.commit()
+            
+            return jsonify({'message': 'Occupant deleted successfully'})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
     # Document routes
     @app.route('/documents')
     def documents_page():
