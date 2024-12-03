@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Properties - PropManager</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/properties.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/commonStyles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -14,7 +13,6 @@
     <nav style="height: 90px;" class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="dashboard.html">
-                <!-- <img src="/images/PropManager_Logo_NoBckg.png" alt="Logo"> -->
                 <img src="{{ url_for('static', filename='images/PropManager_Logo_NoBckg.png') }}" alt="Logo">
                 <span>PropManager</span>
             </a>
@@ -94,10 +92,7 @@
                         {% for property in properties %}
                         <div class="col-lg-4 col-md-6">
                             <div class="property-card">
-                                <!-- <div class="property-image">
-                                    <img src="{{ url_for('static', filename='images/' + property.image) }}" alt="{{ property.street_name }}">
-                                    <span class="status-badge">{{ property.occupancy_status }}</span>
-                                </div> -->
+                                
                                 <div class="property-details">
                                     <h4>{{ property.street_name }}, {{ property.city }}</h4>
                                     <p class="property-type">{{ property.property_type }}</p>
@@ -156,64 +151,69 @@
                                     <option value="townhouse">Townhouse</option>
                                     <option value="commercial">Commercial Unit</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Please select a property type.
+                                </div>
                             </div>
-
+    
                             <!-- Total Units -->
                             <div class="col-md-6 mb-3">
                                 <label for="units" class="form-label">Total Units*</label>
                                 <input type="number" class="form-control" id="units" min="1" required>
+                                <div class="invalid-feedback">
+                                    Please enter the number of units.
+                                </div>
                             </div>
-
+    
                             <!-- Property Size -->
                             <div class="col-md-6 mb-3">
                                 <label for="size" class="form-label">Property Size (sq ft)*</label>
                                 <input type="number" id="size" class="form-control" min="1" required>
+                                <div class="invalid-feedback">
+                                    Please enter the property size.
+                                </div>
                             </div>
-
+    
                             <!-- Number of Bedrooms -->
                             <div class="col-md-6 mb-3">
                                 <label for="bedrooms" class="form-label">Number of Bedrooms*</label>
                                 <input type="number" id="bedrooms" class="form-control" min="0" required>
+                                <div class="invalid-feedback">
+                                    Please enter the number of bedrooms.
+                                </div>
                             </div>
-
+    
                             <!-- Street Address -->
                             <div class="col-md-12 mb-3">
                                 <label for="street" class="form-label">Street Address*</label>
                                 <input id="street" type="text" class="form-control" required>
+                                <div class="invalid-feedback">
+                                    Please enter the street address.
+                                </div>
                             </div>
-
+    
                             <!-- City -->
                             <div class="col-md-6 mb-3">
                                 <label for="city" class="form-label">City*</label>
                                 <input type="text" id="city" class="form-control" required>
+                                <div class="invalid-feedback">
+                                    Please enter the city.
+                                </div>
                             </div>
-
+    
                             <!-- Monthly Rent -->
                             <div class="col-md-6 mb-3">
                                 <label for="rent" class="form-label">Monthly Rent ($)*</label>
                                 <input type="number" class="form-control" id="rent" min="0" step="0.01" required>
+                                <div class="invalid-feedback">
+                                    Please enter the monthly rent.
+                                </div>
                             </div>
-
-                            <!-- Status -->
-                            <div class="col-md-6 mb-3">
-                                <label for="status" class="form-label">Status*</label>
-                                <select class="form-select" id="status" required>
-                                    <option value="vacant">Vacant</option>
-                                    <option value="occupied">Occupied</option>
-                                    <option value="maintenance">Under Maintenance</option>
-                                </select>
-                            </div>
-
+    
                             <!-- Property Description -->
                             <div class="col-md-12 mb-3">
                                 <label for="description" class="form-label">Property Description</label>
                                 <textarea class="form-control" id="description" rows="3"></textarea>
-                            </div>
-
-                            <!-- Property Images -->
-                            <div class="col-md-12 mb-3">
-                                <label for="images" class="form-label">Property Images</label>
-                                <input type="file" class="form-control" id="images" accept="image/*" multiple>
                             </div>
                         </div>
                     </form>
@@ -225,6 +225,7 @@
             </div>
         </div>
     </div>
+    
 
     <!-- Modify Property Modal -->
     <div class="modal fade" id="modifyPropertyModal" tabindex="-1">
@@ -317,33 +318,13 @@
                                 </div>
                             </div>
     
-                            <!-- Status -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status*</label>
-                                <select class="form-select" id="modifyStatus" required>
-                                    <option value="vacant">Vacant</option>
-                                    <!-- <option value="occupied">Occupied</option>
-                                    <option value="maintenance">Under Maintenance</option> -->
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please select a status.
-                                </div>
-                            </div>
-    
                             <!-- Property Description -->
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Property Description</label>
                                 <textarea class="form-control" id="modifyDescription" rows="3"></textarea>
                             </div>
     
-                            <!-- Property Images -->
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Property Images</label>
-                            <input type="file" class="form-control" id="modifyImages" name="image" accept="image/*" multiple>
-                            <div class="form-text">
-                                Upload multiple images of the property (optional).
-                            </div>
-                        </div>
+                           
                         
                             
                         </div>
@@ -371,11 +352,14 @@
                 <div class="modal-body">
                     <p>Are you sure you want to delete the following property?</p>
                     <div id="propertyDetails"></div>
-                    <p>This action cannot be undone.</p>
+                    <p class="text-danger">This action cannot be undone. All related records (occupancy, payments, etc.) will be permanently deleted.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete Property</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Delete Property
+                    </button>
                 </div>
             </div>
         </div>
@@ -403,8 +387,8 @@
         </div>
     </div>
 
-    <!-- View Documents Modal -->
-    <div class="modal fade" id="viewDocumentsModal" tabindex="-1">
+     <!-- View Documents Modal -->
+     <div class="modal fade" id="viewDocumentsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -422,8 +406,6 @@
             </div>
         </div>
     </div>
-
-
 
     <!-- Display property in details -->
     <div class="modal fade" id="propertyDetailsModal" tabindex="-1">
@@ -443,475 +425,516 @@
         </div>
     </div>
 
+
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    // Fetch and update the properties overview
-    async function fetchPropertiesOverview() {
+        // Single function to fetch and update properties overview
+        async function fetchPropertiesOverview() {
             try {
                 const response = await fetch('/api/properties/overview');
                 if (!response.ok) {
-                    throw new Error('Failed to fetch properties overview');
+                    throw new Error('Failed to fetch overview');
                 }
-                const overviewData = await response.json();
-                updatePropertiesOverview(overviewData);
+                const data = await response.json();
+                console.log('Fetched overview data:', data);
+                animateStats(data);
             } catch (error) {
                 console.error('Error fetching properties overview:', error);
             }
         }
-
-    function updatePropertiesOverview(data) {
-        document.getElementById('totalProperties').textContent = data.total_properties || 0;
-        document.getElementById('occupiedUnits').textContent = data.occupied_properties || 0;
-        document.getElementById('vacantUnits').textContent = data.vacant_properties || 0;
-    }
-
-    async function addProperty() {
-
-
-        const propertyType = document.getElementById('propertyType').value.trim();
-        const streetName = document.getElementById('street').value.trim();
-        const city = document.getElementById('city').value.trim();
-        const size = parseFloat(document.getElementById('size').value.trim());
-        const bedrooms = parseInt(document.getElementById('bedrooms').value.trim());
-        const rentPerMonth = parseFloat(document.getElementById('rent').value.trim());
-        const units = parseInt(document.getElementById('units').value.trim());
-        const status = document.getElementById('status').value;
-        const buildingDetails = document.getElementById('description').value.trim();
-
-        // Basic validation
-        if (!propertyType || !streetName || !city || !size || !bedrooms || !rentPerMonth || !units || !status) {
-            alert("Please fill in all required fields");
-            return;
-        }
-
-        // Street Name Validation
-        const addressRegex = /^[0-9]+\s+([a-zA-Z]+\s*)+$/;
-        if (!addressRegex.test(streetName)) {
-            alert("Please enter a valid street address (e.g., 123 Main Street)");
-            return;
-        }
-
-        // Numeric Validation
-        if (size <= 0 || bedrooms <= 0 || rentPerMonth <= 0 || units <= 0) {
-            alert("Numeric fields must be positive values");
-            return;
-        }
-
-        // Prepare request data
-        const propertyData = {
-            property_type: propertyType,
-            street_name: streetName,
-            city: city,
-            size_sqft: size,
-            bedrooms: bedrooms,
-            rent_per_month: rentPerMonth,
-            units: units,
-            occupancy_status: status,
-            building_details: buildingDetails
-        };
-
-        const saveButton = document.getElementById('saveProperty');
-        saveButton.disabled = true;
-
-        try {
-            const response = await fetch('/api/properties', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(propertyData)
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert('Property added successfully!');
-
-                // Fetch and display all properties again after the new one is added
-                fetchProperties();
-                fetchPropertiesOverview();
-                
-                // Close the modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addPropertyModal'));
-                modal.hide();
-            } else {
-                alert(`Error: ${result.error}`);
-            }
-        } catch (error) {
-            console.error('Error adding property:', error);
-            alert('An unexpected error occurred. Please try again.');
-        } finally {
-            saveButton.disabled = false;
-        }
-    }
-
-    // Fetch and display all properties
-    async function fetchProperties() {
-        try {
-            const response = await fetch('/api/properties');
-            if (!response.ok) {
-                throw new Error('Failed to fetch properties');
-            }
-            const properties = await response.json();
-            displayProperties(properties);
-        
-            // here
-        } catch (error) {
-            console.error('Error fetching properties:', error);
-        }
-    }
-
-    // Display properties dynamically
-    function displayProperties(properties) {
-        const propertiesGrid = document.querySelector('.row.g-4');
-        propertiesGrid.innerHTML = ''; // Clear existing content
-
-        if (properties.length === 0) {
-            propertiesGrid.innerHTML = '<p class="text-center">No properties available. Add one to get started!</p>';
-            return;
-        }
-
-        properties.forEach(property => {
-            const propertyCard = `
-                <div class="col-lg-4 col-md-6">
-                    <div class="property-card">
-                        <div class="property-details">
-                            <h4>${property.street_name}, ${property.city}</h4>
-                            <p class="property-type">${property.property_type}</p>
-                            <p class="property-description">${property.building_details || ''}</p>
-                            <div class="property-info">
-                                <div class="info-item">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span>${property.size_sqft} sqft</span>
-                                </div>
-                                <div class="info-item">
-                                    <i class="fas fa-bed"></i>
-                                    <span>${property.bedrooms} Bedrooms</span>
-                                </div>
-                                <div class="info-item">
-                                    <i class="fas fa-door-closed"></i>
-                                    <span>${property.units} Units</span>
-                                </div>
-                                <div class="info-item">
-                                    <i class="fas fa-dollar-sign"></i>
-                                    <span>$${property.rent_per_month}/month</span>
-                                </div>
-                            </div>
-                            <div class="property-actions mt-3 d-flex gap-2">
-                                <button class="btn btn-info" onclick="displayPropertyDetails('${property.property_id}')">
-                                        <i class="fas fa-info-circle"></i> View Details
-                                </button>
-                                <button class="btn btn-success" onclick="openModifyModal('${property.property_id}')">
-                                    <i class="fas fa-edit"></i> Modify
-                                </button>
-                                <button class="btn btn-danger" onclick="openDeleteModal('${property.property_id}')">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                                
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            propertiesGrid.insertAdjacentHTML('beforeend', propertyCard);
-        });
-    }    
-   
-    async function openModifyModal(propertyId) {
-        try {
-            const response = await fetch(`/api/properties/${propertyId}`);
-            if (!response.ok) throw new Error('Failed to fetch property details');
-            
-            const property = await response.json();
-            
-            // Set the property ID in the hidden input
-            document.getElementById('modifyPropertyId').value = propertyId;
-            
-            // Populate the modify form with existing data
-            document.getElementById('modifyPropertyType').value = property.property_type;
-            document.getElementById('modifyUnits').value = property.units;
-            document.getElementById('modifySize').value = property.size_sqft;
-            document.getElementById('modifyBedrooms').value = property.bedrooms;
-            document.getElementById('modifyStreet').value = property.street_name;
-            document.getElementById('modifyUnit').value = property.unit || '';
-            document.getElementById('modifyCity').value = property.city;
-            document.getElementById('modifyRent').value = property.rent_per_month;
-            document.getElementById('modifyStatus').value = property.occupancy_status;
-            document.getElementById('modifyDescription').value = property.building_details || '';
-
-            // Show the modal
-            const modifyModal = new bootstrap.Modal(document.getElementById('modifyPropertyModal'));
-            modifyModal.show();
-        } catch (error) {
-            console.error('Error fetching property details:', error);
-            alert('Failed to load property details. Please try again.');
-        }
-    }
-    // Function to handle property modification
-    async function modifyProperty() {
-        const propertyId = document.getElementById('modifyPropertyId').value;
-        
-        // Validation
-        // Form validation
-        const propertyType = document.getElementById('modifyPropertyType').value.trim();
-        const streetName = document.getElementById('modifyStreet').value.trim();
-        const city = document.getElementById('modifyCity').value.trim();
-        const size = parseFloat(document.getElementById('modifySize').value.trim());
-        const bedrooms = parseInt(document.getElementById('modifyBedrooms').value.trim());
-        const rentPerMonth = parseFloat(document.getElementById('modifyRent').value.trim());
-        const units = parseInt(document.getElementById('modifyUnits').value.trim());
-        const status = document.getElementById('modifyStatus').value;
-        const buildingDetails = document.getElementById('modifyDescription').value.trim();
-
-        // Basic validation
-        if (!propertyType || !streetName || !city || !size || !bedrooms || !rentPerMonth || !units || !status) {
-            alert("Please fill in all required fields");
-            return;
-        }
-
-        // Street Name Validation
-        const addressRegex = /^[0-9]+\s+([a-zA-Z]+\s*)+$/;
-        if (!addressRegex.test(streetName)) {
-            alert("Please enter a valid street address (e.g., 123 Main Street)");
-            return;
-        }
-
-        // Numeric Validation
-        if (size <= 0 || bedrooms <= 0 || rentPerMonth <= 0 || units <= 0) {
-            alert("Numeric fields must be positive values");
-            return;
-        }
-
-        
-
-        const propertyData = {
-            property_type: propertyType,
-            street_name: streetName,
-            city: city,
-            size_sqft: size,
-            bedrooms: bedrooms,
-            rent_per_month: rentPerMonth,
-            units: units,
-            occupancy_status: status,
-            building_details: buildingDetails
-        };
-
-        try {
-            const response = await fetch(`/api/properties/${propertyId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(propertyData)
-            });
-
-            if (!response.ok) throw new Error('Failed to update property');
-
-            alert('Property updated successfully!');
-            fetchProperties(); // Refresh the property list
-            fetchPropertiesOverview();
-            
-            // Close the modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('modifyPropertyModal'));
-            modal.hide();
-        } catch (error) {
-            console.error('Error updating property:', error);
-            alert('Failed to update property. Please try again.');
-        }
-    }
- 
-    // open delete property function
-    async function openDeleteModal(propertyId) {
-    try {
-        const response = await fetch(`/api/properties/${propertyId}`);
-        if (!response.ok) throw new Error('Failed to fetch property details');
-
-        const property = await response.json();
-
-        // Update the delete modal content
-        const propertyDetails = document.getElementById('propertyDetails');
-        propertyDetails.innerHTML = `
-            <div class="alert alert-info">
-                <h6>${property.street_name}, ${property.city}</h6>
-                <p>${property.property_type} - ${property.units} Units</p>
-            </div>`;
-
-        // Store property ID for delete confirmation
-        document.getElementById('confirmDelete').dataset.propertyId = propertyId;
-
-           // Show the modal
-            const deleteModal = new bootstrap.Modal(document.getElementById('deletePropertyModal'));
-            deleteModal.show();
-        } catch (error) {
-            console.error('Error preparing delete modal:', error);
-            alert('Failed to load property information. Please try again.');
-        }
-    }
-
-    // Function to handle property deletion
-    async function deleteProperty(propertyId) {
-        try {
-            const response = await fetch(`/api/properties/${propertyId}`, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) throw new Error('Failed to delete property');
-
-            alert('Property deleted successfully!');
-            fetchProperties(); // Refresh the property list
-            fetchPropertiesOverview(); // Update the overview numbers
-
-            // Close the modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('deletePropertyModal'));
-            modal.hide();
-        } catch (error) {
-            console.error('Error deleting property:', error);
-            alert('Failed to delete property. Please try again.');
-        }
-    }
-
-
-
     
-    // Call fetchProperties on page load to display existing properties
-    document.addEventListener('DOMContentLoaded', fetchProperties);
-    document.addEventListener('DOMContentLoaded', fetchPropertiesOverview);
-    // Add event listener for modify property form submission
-    document.getElementById('saveModifiedProperty').addEventListener('click', modifyProperty);
-    // Add event listener for delete confirmation
-    document.getElementById('confirmDelete').addEventListener('click', function() {
-            const propertyId = this.dataset.propertyId;
-            deleteProperty(propertyId);
-        });
-
-    // Attach the addProperty function to the Save button
-    document.getElementById('saveProperty').addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('calling fxn app prop')
-        addProperty();
-    });
-
-
-    async function displayPropertyDetails(propertyId) {
-        try {
-            const response = await fetch(`/api/properties/${propertyId}/full-details`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch property details');
+        // Animate stats with smooth counting animation
+        function animateStats(data) {
+            const stats = {
+                'totalProperties': data.total_properties || 0,
+                'occupiedUnits': data.occupied_properties || 0,
+                'vacantUnits': data.vacant_properties || 0
+            };
+    
+            Object.entries(stats).forEach(([elementId, finalNumber]) => {
+                animateNumber(elementId, finalNumber);
+            });
+        }
+    
+        // Animation helper function
+        function animateNumber(elementId, finalNumber) {
+            const element = document.getElementById(elementId);
+            const currentNumber = parseInt(element.textContent) || 0;
+            const diff = finalNumber - currentNumber;
+            const duration = 1000;
+            const steps = 20;
+            const increment = diff / steps;
+            let currentStep = 0;
+    
+            const timer = setInterval(() => {
+                currentStep++;
+                const progress = currentStep / steps;
+                const currentValue = Math.round(currentNumber + (diff * progress));
+                element.textContent = currentValue;
+    
+                if (currentStep === steps) {
+                    clearInterval(timer);
+                    element.textContent = finalNumber;
+                }
+            }, duration / steps);
+        }
+    
+        // Fetch and display all properties
+        async function fetchProperties() {
+            try {
+                const response = await fetch('/api/properties');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch properties');
+                }
+                const properties = await response.json();
+                displayProperties(properties);
+            } catch (error) {
+                console.error('Error fetching properties:', error);
             }
-            
-            const propertyDetails = await response.json();
-            
-            // Create HTML content for property details
-            const propertyContent = `
-                <div class="property-details-container">
-                    <!-- Property Information -->
-                    <div class="section">
-                        <h3>Property Information</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <strong>Type:</strong> ${propertyDetails.property_info.property_type}
+        }
+    
+        // Display properties in the grid
+        function displayProperties(properties) {
+            const propertiesGrid = document.querySelector('.row.g-4');
+            propertiesGrid.innerHTML = '';
+    
+            if (properties.length === 0) {
+                propertiesGrid.innerHTML = '<p class="text-center">No properties available. Add one to get started!</p>';
+                return;
+            }
+    
+            properties.forEach(property => {
+                const statusClass = property.occupancy_status === 'vacant' ? 'status-vacant' : 'status-occupied';
+                const propertyCard = `
+                    <div class="col-lg-4 col-md-6">
+                        <div class="property-card">
+                            <div class="occupancy-status ${statusClass}">
+                                ${property.occupancy_status}
                             </div>
-                            <div class="info-item">
-                                <strong>Address:</strong> ${propertyDetails.property_info.street_name}, ${propertyDetails.property_info.city}
-                            </div>
-                            <div class="info-item">
-                                <strong>Size:</strong> ${propertyDetails.property_info.size_sqft} sq ft
-                            </div>
-                            <div class="info-item">
-                                <strong>Bedrooms:</strong> ${propertyDetails.property_info.bedrooms}
-                            </div>
-                            <div class="info-item">
-                                <strong>Units:</strong> ${propertyDetails.property_info.units}
-                            </div>
-                            <div class="info-item">
-                                <strong>Monthly Rent:</strong> $${propertyDetails.property_info.rent_per_month}
-                            </div>
-                            <div class="info-item">
-                                <strong>Status:</strong> 
-                                <span class="status-badge ${propertyDetails.property_info.occupancy_status}">
-                                    ${propertyDetails.property_info.occupancy_status}
-                                </span>
+                            <div class="property-details">
+                                <h4>${property.street_name}, ${property.city}</h4>
+                                <p class="property-type">${property.property_type}</p>
+                                <p class="property-description">${property.building_details || ''}</p>
+                                <div class="property-info">
+                                    <div class="info-item">
+                                        <i class="fas fa-ruler-combined"></i>
+                                        <span>${property.size_sqft} sqft</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-bed"></i>
+                                        <span>${property.bedrooms} Bedrooms</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-door-closed"></i>
+                                        <span>${property.units} Units</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        <span>$${property.rent_per_month}/month</span>
+                                    </div>
+                                </div>
+                                <div class="property-actions mt-3 d-flex gap-2">
+                                    <button class="btn btn-info" onclick="displayPropertyDetails('${property.property_id}')">
+                                        <i class="fas fa-info-circle"></i> View Details
+                                    </button>
+                                    <button class="btn btn-success" onclick="openModifyModal('${property.property_id}')">
+                                        <i class="fas fa-edit"></i> Modify
+                                    </button>
+                                    <button class="btn btn-danger" onclick="openDeleteModal('${property.property_id}')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                    </div>`;
+                propertiesGrid.insertAdjacentHTML('beforeend', propertyCard);
+            });
+        }
+    
+        // Add property function
+        async function addProperty() {
+            const form = document.getElementById('addPropertyForm');
+            
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+    
+            const propertyData = {
+                property_type: document.getElementById('propertyType').value.trim(),
+                street_name: document.getElementById('street').value.trim(),
+                city: document.getElementById('city').value.trim(),
+                size_sqft: parseFloat(document.getElementById('size').value.trim()),
+                bedrooms: parseInt(document.getElementById('bedrooms').value.trim()),
+                rent_per_month: parseFloat(document.getElementById('rent').value.trim()),
+                units: parseInt(document.getElementById('units').value.trim()),
+                building_details: document.getElementById('description').value.trim(),
+                occupancy_status: 'vacant'
+            };
+    
+            const saveButton = document.getElementById('saveProperty');
+            saveButton.disabled = true;
+    
+            try {
+                const response = await fetch('/api/properties', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(propertyData)
+                });
+    
+                const result = await response.json();
+    
+                if (response.ok) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addPropertyModal'));
+                    modal.hide();
+                    form.reset();
+                    form.classList.remove('was-validated');
+                    await refreshData();
+                    alert('Property added successfully!');
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error adding property:', error);
+                alert('An unexpected error occurred. Please try again.');
+            } finally {
+                saveButton.disabled = false;
+            }
+        }
+    
+        // Modify property functions
+        async function openModifyModal(propertyId) {
+            try {
+                const response = await fetch(`/api/properties/${propertyId}`);
+                if (!response.ok) throw new Error('Failed to fetch property details');
+                const property = await response.json();
+    
+                // Populate form fields
+                const fields = {
+                    'modifyPropertyId': propertyId,
+                    'modifyPropertyType': property.property_type,
+                    'modifyUnits': property.units,
+                    'modifySize': property.size_sqft,
+                    'modifyBedrooms': property.bedrooms,
+                    'modifyStreet': property.street_name,
+                    'modifyCity': property.city,
+                    'modifyRent': property.rent_per_month,
+                    'modifyDescription': property.building_details || ''
+                };
+    
+                Object.entries(fields).forEach(([id, value]) => {
+                    document.getElementById(id).value = value;
+                });
+    
+                const modifyModal = new bootstrap.Modal(document.getElementById('modifyPropertyModal'));
+                modifyModal.show();
+            } catch (error) {
+                console.error('Error opening modify modal:', error);
+                alert('Failed to load property details');
+            }
+        }
+    
+        async function modifyProperty() {
+            const form = document.getElementById('modifyPropertyForm');
+            
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+    
+            const propertyId = document.getElementById('modifyPropertyId').value;
+            const propertyData = {
+                property_type: document.getElementById('modifyPropertyType').value.trim(),
+                street_name: document.getElementById('modifyStreet').value.trim(),
+                city: document.getElementById('modifyCity').value.trim(),
+                size_sqft: parseFloat(document.getElementById('modifySize').value.trim()),
+                bedrooms: parseInt(document.getElementById('modifyBedrooms').value.trim()),
+                rent_per_month: parseFloat(document.getElementById('modifyRent').value.trim()),
+                units: parseInt(document.getElementById('modifyUnits').value.trim()),
+                building_details: document.getElementById('modifyDescription').value.trim()
+            };
+    
+            const saveButton = document.getElementById('saveModifiedProperty');
+            saveButton.disabled = true;
+    
+            try {
+                const response = await fetch(`/api/properties/${propertyId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(propertyData)
+                });
+    
+                const result = await response.json();
+    
+                if (response.ok) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modifyPropertyModal'));
+                    modal.hide();
+                    form.classList.remove('was-validated');
+                    await refreshData();
+                    alert('Property updated successfully!');
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error modifying property:', error);
+                alert('An unexpected error occurred. Please try again.');
+            } finally {
+                saveButton.disabled = false;
+            }
+        }
+    
+        // Delete property functions
+        async function openDeleteModal(propertyId) {
+            try {
+                const response = await fetch(`/api/properties/${propertyId}`);
+                if (!response.ok) throw new Error('Failed to fetch property details');
+                const property = await response.json();
+    
+                document.getElementById('confirmDelete').dataset.propertyId = propertyId;
+                const propertyDetails = document.getElementById('propertyDetails');
+                
+                let detailsHTML = `
+                    <div class="property-delete-details">
+                        <p><strong>Address:</strong> ${property.street_name}, ${property.city}</p>
+                        <p><strong>Type:</strong> ${property.property_type}</p>
+                        <p><strong>Status:</strong> ${property.occupancy_status}</p>
                     </div>
+                `;
+    
+                if (property.occupancy_status === 'occupied') {
+                    const occupancyResponse = await fetch(`/api/properties/${propertyId}/occupancy`);
+                    if (occupancyResponse.ok) {
+                        const occupancyData = await occupancyResponse.json();
+                        if (occupancyData.due_payments?.length > 0) {
+                            detailsHTML += `
+                                <div class="alert alert-warning mt-3">
+                                    <strong>Warning:</strong> This property has ${occupancyData.due_payments.length} pending payments.
+                                    <ul>
+                                        ${occupancyData.due_payments.map(payment => 
+                                            `<li>$${payment.amount} due on ${payment.due_date}</li>`
+                                        ).join('')}
+                                    </ul>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+    
+                propertyDetails.innerHTML = detailsHTML;
+                const deleteModal = new bootstrap.Modal(document.getElementById('deletePropertyModal'));
+                deleteModal.show();
+            } catch (error) {
+                console.error('Error opening delete modal:', error);
+                alert('Failed to load property details');
+            }
+        }
+    
+        async function deleteProperty(propertyId) {
+            try {
+                const response = await fetch(`/api/properties/${propertyId}`, {
+                    method: 'DELETE'
+                });
+    
+                const result = await response.json();
+    
+                if (response.ok) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('deletePropertyModal'));
+                    modal.hide();
+                    await refreshData();
+                    alert('Property deleted successfully!');
+                } else if (response.status === 200 && result.requires_confirmation) {
+                    if (confirm(result.warning + '\n\nAre you sure you want to proceed with deletion?')) {
+                        await deleteProperty(propertyId, true);
+                    }
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error deleting property:', error);
+                alert('An unexpected error occurred. Please try again.');
+            }
+        }
+    
+        // Helper function to refresh all data
+        async function refreshData() {
+            await Promise.all([
+                fetchProperties(),
+                fetchPropertiesOverview()
+            ]);
+        }
+    
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add property form
+            const saveButton = document.getElementById('saveProperty');
+            if (saveButton) {
+                saveButton.addEventListener('click', addProperty);
+            }
+    
+            // Form validation listeners
+            ['addPropertyForm', 'modifyPropertyForm'].forEach(formId => {
+                const form = document.getElementById(formId);
+                if (form) {
+                    form.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.addEventListener('input', () => {
+                            if (form.classList.contains('was-validated')) {
+                                form.checkValidity();
+                            }
+                        });
+                    });
+                }
+            });
+    
+            // Modify property form
+            const saveModifiedPropertyButton = document.getElementById('saveModifiedProperty');
+            if (saveModifiedPropertyButton) {
+                saveModifiedPropertyButton.addEventListener('click', modifyProperty);
+            }
+    
+            // Delete confirmation
+            const confirmDeleteButton = document.getElementById('confirmDelete');
+            if (confirmDeleteButton) {
+                confirmDeleteButton.addEventListener('click', function() {
+                    const propertyId = this.dataset.propertyId;
+                    if (propertyId) {
+                        deleteProperty(propertyId);
+                    }
+                });
+            }
+    
+            // Initial data load
+            refreshData();
+        });
 
-                    <!-- Occupancy Information -->
-                    ${propertyDetails.occupancy ? `
+
+
+
+        async function displayPropertyDetails(propertyId) {
+            try {
+                const response = await fetch(`/api/properties/${propertyId}/full-details`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch property details');
+                }
+                
+                const propertyDetails = await response.json();
+                
+                // Create HTML content for property details
+                const propertyContent = `
+                    <div class="property-details-container">
+                        <!-- Property Information -->
                         <div class="section">
-                            <h3>Current Occupancy</h3>
+                            <h3>Property Information</h3>
                             <div class="info-grid">
                                 <div class="info-item">
-                                    <strong>Tenant:</strong> ${propertyDetails.occupancy.tenant_name}
+                                    <strong>Type:</strong> ${propertyDetails.property_info.property_type}
                                 </div>
                                 <div class="info-item">
-                                    <strong>Contact:</strong> ${propertyDetails.occupancy.tenant_phone}
+                                    <strong>Address:</strong> ${propertyDetails.property_info.street_name}, ${propertyDetails.property_info.city}
                                 </div>
                                 <div class="info-item">
-                                    <strong>Email:</strong> ${propertyDetails.occupancy.tenant_email}
+                                    <strong>Size:</strong> ${propertyDetails.property_info.size_sqft} sq ft
                                 </div>
                                 <div class="info-item">
-                                    <strong>Lease Period:</strong> 
-                                    ${propertyDetails.occupancy.lease_start_date} to ${propertyDetails.occupancy.lease_end_date}
+                                    <strong>Bedrooms:</strong> ${propertyDetails.property_info.bedrooms}
                                 </div>
                                 <div class="info-item">
-                                    <strong>Payments Completed:</strong> ${propertyDetails.occupancy.payments_completed}
+                                    <strong>Units:</strong> ${propertyDetails.property_info.units}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Monthly Rent:</strong> $${propertyDetails.property_info.rent_per_month}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Status:</strong> 
+                                    <span class="status-badge ${propertyDetails.property_info.occupancy_status}">
+                                        ${propertyDetails.property_info.occupancy_status}
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                    ` : ''}
 
-                    <!-- Financial Summary -->
-                    <div class="section">
-                        <h3>Financial Summary</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <strong>Total Rent:</strong> $${propertyDetails.financial_summary.total_rent}
+                        <!-- Occupancy Information -->
+                        ${propertyDetails.occupancy ? `
+                            <div class="section">
+                                <h3>Current Occupancy</h3>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <strong>Tenant:</strong> ${propertyDetails.occupancy.tenant_name}
+                                    </div>
+                                    <div class="info-item">
+                                        <strong>Contact:</strong> ${propertyDetails.occupancy.tenant_phone}
+                                    </div>
+                                    <div class="info-item">
+                                        <strong>Email:</strong> ${propertyDetails.occupancy.tenant_email}
+                                    </div>
+                                    <div class="info-item">
+                                        <strong>Lease Period:</strong> 
+                                        ${propertyDetails.occupancy.lease_start_date} to ${propertyDetails.occupancy.lease_end_date}
+                                    </div>
+                                    <div class="info-item">
+                                        <strong>Payments Completed:</strong> ${propertyDetails.occupancy.payments_completed}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="info-item">
-                                <strong>Total Paid:</strong> $${propertyDetails.financial_summary.total_paid}
-                            </div>
-                            <div class="info-item">
-                                <strong>Total Due:</strong> $${propertyDetails.financial_summary.total_due}
-                            </div>
-                            <div class="info-item">
-                                <strong>Payment Progress:</strong> 
-                                <div class="progress">
-                                    <div class="progress-bar" style="width: ${propertyDetails.financial_summary.payment_percentage}%">
-                                        ${propertyDetails.financial_summary.payment_percentage.toFixed(1)}%
+                        ` : ''}
+
+                        <!-- Financial Summary -->
+                        <div class="section">
+                            <h3>Financial Summary</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <strong>Total Rent:</strong> $${propertyDetails.financial_summary.total_rent}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Total Paid:</strong> $${propertyDetails.financial_summary.total_paid}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Total Due:</strong> $${propertyDetails.financial_summary.total_due}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Payment Progress:</strong> 
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: ${propertyDetails.financial_summary.payment_percentage}%">
+                                            ${propertyDetails.financial_summary.payment_percentage.toFixed(1)}%
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <<!-- Documents -->
+                        <div class="section">
+                            <h3>Documents (${propertyDetails.documents.total_documents})</h3>
+                            ${propertyDetails.documents.documents_list.length > 0 ? `
+                                <div class="documents-list">
+                                    ${propertyDetails.documents.documents_list.map(doc => `
+                                        <div class="document-item">
+                                            <i class="fas fa-file-alt"></i>
+                                            
+                                            <a href="/api/documents/${doc.document_id}/download" class="btn btn-primary">Download</a>
+                                            <small>Uploaded: ${doc.upload_date}</small>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : '<p>No documents uploaded yet.</p>'}
+                        </div>
                     </div>
+                `;
 
-                    <!-- Documents -->
-                    <div class="section">
-                        <h3>Documents (${propertyDetails.documents.total_documents})</h3>
-                        ${propertyDetails.documents.documents_list.length > 0 ? `
-                            <div class="documents-list">
-                                ${propertyDetails.documents.documents_list.map(doc => `
-                                    <div class="document-item">
-                                        <i class="fas fa-file-alt"></i>
-                                        <span>${doc.title}</span>
-                                        <small>Uploaded: ${doc.upload_date}</small>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : '<p>No documents uploaded yet.</p>'}
-                    </div>
-                </div>
-            `;
+                // Display the content in a modal or designated container
+                const detailsContainer = document.getElementById('propertyDetailsContainer');
+                detailsContainer.innerHTML = propertyContent;
 
-            // Display the content in a modal or designated container
-            const detailsContainer = document.getElementById('propertyDetailsContainer');
-            detailsContainer.innerHTML = propertyContent;
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('propertyDetailsModal'));
+                modal.show();
 
-            // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('propertyDetailsModal'));
-            modal.show();
-
-        } catch (error) {
-            console.error('Error displaying property details:', error);
-            alert('Failed to load property details. Please try again.');
+            } catch (error) {
+                console.error('Error displaying property details:', error);
+                alert('Failed to load property details. Please try again.');
+            }
         }
-    }
-
- </script>
+    </script>
 </body>
 </html>

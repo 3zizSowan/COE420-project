@@ -1,32 +1,87 @@
-/* Properties Page Styles */
-
-/* Navbar */
+Properties Page Styles
+/* --------------NAVBAR */
 .navbar {
     position: static;
     z-index: 10; 
-    background-color: var(--light-bg);
-}
-
-.navbar-brand img {
+    background-color: #EEEEEE;
+  }
+  
+  .navbar-brand img {
     height: 50px; 
     width: auto; 
-}
-
-.nav-link {
-    color: var(--text-color);
+  }
+  
+  .nav-link {
+    color: #34495e;
     font-size: 1rem;
     font-weight: 500;
-}
+  }
+  
+  .nav-link:hover, .active, .nav-link.active, .nav-item.active  {
+    color: #b59410; 
+  }
 
-.nav-link:hover, .active, .nav-link.active, .nav-item.active {
-    color: var(--secondary-color); 
-}
-
+  
+  .login-link {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    text-align: center;
+    color: rgb(0, 47, 108);
+  }
+  
+  .login-link i {
+    margin-right: 5px;
+    font-size: 1.2rem;
+  }
+  
+  .login-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Centering the navbar items in mobile view */
+  @media (max-width: 992px) {
+    .navbar-collapse {
+      text-align: left;
+      background-color: #eeeeee;
+    }
+  
+    .navbar-nav {
+      justify-content: center;
+      padding: 1rem;
+    }
+  
+    /* .nav-link {
+      padding: 0.5rem;
+      display: block;
+      color: #34495e;
+    }
+    
+    .nav-link:hover {
+      color: #b59410;
+    }
+    
+    .nav-link.active {
+      color: #b59410;
+    } */
+    
+    .navbar-collapse .nav-link {
+      color: #34495e; 
+    }
+    
+    .navbar-collapse .nav-link:hover {
+      color: #b59410; 
+    }
+    
+    .navbar-brand img {
+      margin: auto;
+    }
+  }
 /* Properties Container */
 .properties-container {
     padding: 20px;
     margin-top: 20px;
-    background-color: var(--light-bg);
+    background-color: #f8f9fa;
     min-height: calc(100vh - 90px);
 }
 
@@ -46,20 +101,293 @@
 
 .property-stat-card i {
     font-size: 2rem;
-    color: var(--primary-color);
+    color: rgb(0, 47, 108);
     margin-bottom: 10px;
 }
 
 .property-stat-card .number {
     font-size: 2rem;
     font-weight: bold;
-    color: var(--primary-color);
+    color: rgb(0, 47, 108);
     margin: 10px 0;
 }
 
 .property-stat-card .status {
-    color: var(--muted-text-color);
+    color: #666;
     font-size: 0.9rem;
+}
+
+/* Properties Management Card */
+.properties-management-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.properties-management-card h3 {
+    color: rgb(0, 47, 108);
+    margin-bottom: 20px;
+}
+
+/* Search Box */
+.search-box {
+    position: relative;
+}
+
+.search-box .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgb(0, 47, 108);
+}
+
+.search-box input {
+    padding-right: 40px;
+}
+
+/* Property Card */
+.property-card {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+}
+
+
+.occupancy-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.status-vacant {
+    background-color: #dc3545;
+    color: white;
+}
+
+.status-occupied {
+    background-color: #198754;
+    color: white;
+}
+
+.property-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Add to your existing styles */
+.property-delete-details {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.property-delete-details p {
+    margin-bottom: 5px;
+}
+
+.alert-warning ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+
+.status-badge.fully-occupied {
+    background-color: #198754;
+    color: #f8f9fa;
+}
+
+.status-badge.partially-vacant {
+    background-color: #ffc107;
+    color: #f8f9fa;
+}
+
+.property-details {
+    padding: 20px;
+}
+
+.property-details h4 {
+    color: rgb(0, 47, 108);
+    margin-bottom: 15px;
+}
+
+.property-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+}
+
+.info-item i {
+    color: rgb(0, 47, 108);
+}
+
+.property-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Modal Styles */
+.modal-header {
+    background-color: rgb(0, 47, 108);
+    color: white;
+}
+
+.modal-header .btn-close {
+    color: white;
+}
+
+/* Property Details View */
+.property-details-view {
+    padding: 20px;
+}
+
+.property-images {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+.detail-item i {
+    color: rgb(0, 47, 108);
+    width: 20px;
+}
+
+/* Form Controls */
+.form-control:focus,
+.form-select:focus {
+    border-color: rgb(0, 47, 108);
+    box-shadow: 0 0 0 0.2rem rgba(0, 47, 108, 0.25);
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: rgb(0, 47, 108);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: rgb(0, 47, 108);
+    border-color: rgb(0, 47, 108);
+}
+
+
+.property-details-container {
+    padding: 20px;
+}
+
+.property-details-container .section {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.property-details-container .section:last-child {
+    border-bottom: none;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.info-item {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    text-transform: capitalize;
+}
+
+.status-badge.occupied {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-badge.vacant {
+    background-color: #dc3545;
+    color: white;
+}
+
+.progress {
+    height: 20px;
+    margin-top: 5px;
+}
+
+.documents-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.document-item i {
+    font-size: 1.5em;
+    color: #6c757d;
+}
+
+.document-item small {
+    color: #6c757d;
+    margin-left: auto;
 }
 
 /* Responsive Design */
@@ -68,6 +396,200 @@
         padding: 15px;
     }
 
+    .property-stat-card {
+        margin-bottom: 15px;
+    }
+
+    .search-box,
+    .form-select {
+        margin-bottom: 15px;
+    }
+
+    .property-info {
+        flex-direction: column;
+    }
+
+    .property-actions {
+        flex-direction: column;
+    }
+
+    .property-actions .btn {
+        width: 100%;
+    }
+
+    .modal-dialog {
+        margin: 10px;
+    }
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: rgb(0, 47, 108);
+    border-color: rgb(0, 47, 108);
+}
+
+.btn-primary:hover {
+    background-color: rgba(0, 47, 108, 0.9);
+    border-color: rgba(0, 47, 108, 0.9);
+}
+
+.btn-outline-primary {
+    color: rgb(0, 47, 108);
+    border-color: rgb(0, 47, 108);
+}
+
+.btn-outline-primary:hover {
+    background-color: rgb(0, 47, 108);
+    color: white;
+}
+
+/* Properties Overview Styles */
+.property-stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.property-stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.property-stat-card i {
+    font-size: 2rem;
+    color: rgb(0, 47, 108);
+    margin-bottom: 10px;
+}
+
+.property-stat-card .number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: rgb(0, 47, 108);
+    margin: 10px 0;
+}
+
+.property-stat-card .status {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+
+/* Property Action Buttons */
+.property-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.property-actions .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.property-actions .btn i {
+    font-size: 0.9rem;
+}
+
+.property-actions .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.property-actions .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.property-actions .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.property-actions .btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
+.property-details-container {
+    padding: 20px;
+}
+
+.section {
+    margin-bottom: 30px;
+}
+
+.section h3 {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.status-badge.vacant {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-badge.occupied {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.progress {
+    height: 20px;
+    margin-top: 5px;
+}
+
+.documents-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.document-item {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.document-item i {
+    color: #6c757d;
+}
+
+.document-item small {
+    color: #6c757d;
+    display: block;
+    font-size: 0.8em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
     .property-stat-card {
         margin-bottom: 20px; /* Add spacing between cards on smaller screens */
     }

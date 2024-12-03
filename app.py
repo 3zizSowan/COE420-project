@@ -23,7 +23,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 UPLOAD_FOLDER = os.path.join('static', 'images', 'properties')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static/documents')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+
 
 # Make sure the upload directory exists
 if not os.path.exists(UPLOAD_FOLDER):
@@ -147,6 +155,7 @@ class Property(db.Model):
                 if p.status == 'due' and p.due_date < today
             ]
         }
+
 class Occupancy(db.Model):
     __tablename__ = 'occupancy'
     
@@ -325,17 +334,16 @@ class PropertyView(AuthenticatedMethodView):
         if 'user_id' not in session:
             return jsonify({'error': 'User not logged in'}), 401
 
-        data = request.json  # Use form data to handle both JSON and file inputs
+        data = request.json
 
-        
         # Ensure required fields are present
-        required_fields = ['property_type', 'street_name', 'city', 'size_sqft', 'bedrooms', 'units', 'rent_per_month', 'occupancy_status']
+        required_fields = ['property_type', 'street_name', 'city', 'size_sqft', 'bedrooms', 'units', 'rent_per_month']
         missing_fields = [field for field in required_fields if field not in data]
         if missing_fields:
             return jsonify({'error': f"Missing fields: {', '.join(missing_fields)}"}), 400
 
         try:
-            # Create the new property
+            # Create the new property with occupancy_status always set to 'vacant'
             new_property = Property(
                 user_id=session['user_id'],
                 property_type=data['property_type'],
@@ -346,20 +354,21 @@ class PropertyView(AuthenticatedMethodView):
                 bedrooms=int(data['bedrooms']),
                 units=int(data['units']),
                 rent_per_month=float(data['rent_per_month']),
-                occupancy_status=data['occupancy_status'],
+                occupancy_status='vacant',  # Always set to vacant for new properties
                 image='default.jpg'
-
             )
 
             db.session.add(new_property)
             db.session.commit()
 
-            return jsonify({'message': 'Property added successfully', 'property_id': new_property.property_id}), 201
+            return jsonify({
+                'message': 'Property added successfully',
+                'property_id': new_property.property_id
+            }), 201
 
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': f"Failed to add property: {str(e)}"}), 500
-
     def get(self):
         """Get all properties for the logged-in user"""
         if 'user_id' not in session:
@@ -395,76 +404,78 @@ class PropertyView(AuthenticatedMethodView):
 
 class PropertyDetailView(AuthenticatedMethodView):
     def get(self, property_id):
-        """Get comprehensive details for a specific property"""
+        """Get details for a specific property"""
+        property = Property.query.filter_by(
+            property_id=property_id, 
+            user_id=session['user_id']
+        ).first_or_404()
+
+        return jsonify({
+            'property_id': property.property_id,
+            'property_type': property.property_type,
+            'street_name': property.street_name,
+            'city': property.city,
+            'building_details': property.building_details,
+            'size_sqft': property.size_sqft,
+            'bedrooms': property.bedrooms,
+            'units': property.units,
+            'rent_per_month': property.rent_per_month,
+            'occupancy_status': property.occupancy_status
+        }), 200
+        
+        # return jsonify({
+        #     'property': {
+        #         'property_id': property.property_id,
+        #         'property_type': property.property_type,
+        #         'street_name': property.street_name,
+        #         'city': property.city,
+        #         'building_details': property.building_details,
+        #         'size_sqft': property.size_sqft,
+        #         'bedrooms': property.bedrooms,
+        #         'occupancy_status': property.occupancy_status
+        #     },
+        #     'occupancy': property.current_occupancy.to_dict() if property.current_occupancy else None,
+        #     'income_summary': property.get_income_summary()
+        # }), 200
+
+    def put(self, property_id):
+        """Update a property"""
+        property = Property.query.filter_by(
+            property_id=property_id, 
+            user_id=session['user_id']
+        ).first_or_404()
+
+        data = request.json
         try:
-            # Get property with all related information
-            property = Property.query.filter_by(
-                property_id=property_id, 
-                user_id=session['user_id']
-            ).first_or_404()
-
-            # Get current occupancy information if exists
-            occupancy_info = None
-            payment_summary = None
-            if property.current_occupancy:
-                # Get payment information
-                total_payments = len(property.current_occupancy.payments)
-                paid_payments = sum(1 for p in property.current_occupancy.payments if p.status == 'paid')
-                total_paid = sum(p.amount for p in property.current_occupancy.payments if p.status == 'paid')
-                total_due = sum(p.amount for p in property.current_occupancy.payments if p.status == 'due')
-
-                occupancy_info = {
-                    'tenant_name': property.current_occupancy.tenant_name,
-                    'tenant_phone': property.current_occupancy.tenant_phone,
-                    'tenant_email': property.current_occupancy.tenant_email,
-                    'lease_start_date': property.current_occupancy.lease_start_date.strftime('%Y-%m-%d'),
-                    'lease_end_date': property.current_occupancy.lease_end_date.strftime('%Y-%m-%d'),
-                    'total_rent': float(property.current_occupancy.total_rent),
-                    'payments_completed': f"{paid_payments}/{total_payments}",
-                    'payment_details': {
-                        'total_paid': float(total_paid),
-                        'total_due': float(total_due),
-                        'payment_percentage': (total_paid / property.current_occupancy.total_rent * 100) if property.current_occupancy.total_rent > 0 else 0
-                    }
-                }
-
-            # Get documents information
-            documents = [{
-                'document_id': doc.document_id,
-                'title': doc.title,
-                'upload_date': doc.upload_date.strftime('%Y-%m-%d')
-            } for doc in property.documents]
-
-            # Calculate financial metrics
-            income_summary = property.get_income_summary()
-
-            # Compile complete property information
-            property_details = {
-                'property_info': {
-                    'property_id': property.property_id,
-                    'property_type': property.property_type,
-                    'street_name': property.street_name,
-                    'city': property.city,
-                    'building_details': property.building_details,
-                    'size_sqft': property.size_sqft,
-                    'bedrooms': property.bedrooms,
-                    'units': property.units,
-                    'rent_per_month': property.rent_per_month,
-                    'occupancy_status': property.occupancy_status
-                },
-                'occupancy': occupancy_info,
-                'documents': {
-                    'total_documents': len(documents),
-                    'documents_list': documents
-                },
-                'financial_summary': income_summary
-            }
-
-            return jsonify(property_details), 200
-
+            for key, value in data.items():
+                if hasattr(property, key):
+                    setattr(property, key, value)
+            db.session.commit()
+            return jsonify({'message': 'Property updated successfully'}), 200
         except Exception as e:
-            print(f"Error fetching property details: {str(e)}")
-            return jsonify({'error': str(e)}), 500
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 400
+
+    def delete(self, property_id):
+        """Delete a property"""
+        property = Property.query.filter_by(
+            property_id=property_id, 
+            user_id=session['user_id']
+        ).first_or_404()
+
+        if property.current_occupancy:
+            return jsonify({
+                'warning': 'Property has active occupancy. Confirm deletion?',
+                'requires_confirmation': True
+            }), 200
+
+        try:
+            db.session.delete(property)
+            db.session.commit()
+            return jsonify({'message': 'Property deleted successfully'}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 400
 
 class OccupancyView(AuthenticatedMethodView):
     def post(self, property_id):
@@ -937,7 +948,6 @@ class DashboardView(AuthenticatedMethodView):
             print(f"Dashboard Error: {str(e)}")  # For debugging
             return jsonify({'error': 'Failed to load dashboard data'}), 500
 
-
 class PropertySummaryView(AuthenticatedMethodView):
     def get(self, property_id):
         """Get property summary"""
@@ -985,6 +995,7 @@ class PropertyOverviewView(AuthenticatedMethodView):
             'occupied_properties': occupied_properties,
             'vacant_properties': vacant_properties
         })
+
 
 class VacantPropertiesView(AuthenticatedMethodView):
     def get(self):
@@ -1172,18 +1183,94 @@ def register_routes(app):
 
 
     @app.route('/api/properties/<property_id>/full-details', methods=['GET'])
-    def get_full_property_details(property_id):
-        """Get comprehensive property details including occupancy and documents"""
+    def get_property_full_details(property_id):
         try:
-            if 'user_id' not in session:
-                return jsonify({'error': 'User not logged in'}), 401
+            # Get property with related data
+            property = Property.query.filter_by(
+                property_id=property_id,
+                user_id=session['user_id']
+            ).first_or_404()
 
-            property_view = PropertyDetailView()
-            return property_view.get(property_id)
+            # Calculate financial summary
+            total_rent = 0
+            total_paid = 0
+            total_due = 0
+            payment_percentage = 0
+
+            if property.current_occupancy:
+                total_rent = float(property.current_occupancy.total_rent)
+                total_paid = sum(float(p.amount) for p in property.current_occupancy.payments if p.status == 'paid')
+                total_due = sum(float(p.amount) for p in property.current_occupancy.payments if p.status == 'due')
+                payment_percentage = (total_paid / total_rent * 100) if total_rent > 0 else 0
+
+            # Prepare response data
+            response_data = {
+                'property_info': {
+                    'property_id': property.property_id,
+                    'property_type': property.property_type,
+                    'street_name': property.street_name,
+                    'city': property.city,
+                    'building_details': property.building_details,
+                    'size_sqft': property.size_sqft,
+                    'bedrooms': property.bedrooms,
+                    'units': property.units,
+                    'rent_per_month': float(property.rent_per_month),
+                    'occupancy_status': property.occupancy_status
+                },
+                'occupancy': None,
+                'financial_summary': {
+                    'total_rent': total_rent,
+                    'total_paid': total_paid,
+                    'total_due': total_due,
+                    'payment_percentage': payment_percentage
+                },
+                'documents': {
+                    'total_documents': len(property.documents),
+                    'documents_list': [
+                        {
+                            'document_id': doc.document_id,
+                            'title': doc.title,
+                            'upload_date': doc.upload_date.strftime('%Y-%m-%d')
+                        } for doc in property.documents
+                    ]
+                }
+            }
+
+            # Add occupancy information if property is occupied
+            if property.current_occupancy:
+                response_data['occupancy'] = {
+                    'tenant_name': property.current_occupancy.tenant_name,
+                    'tenant_phone': property.current_occupancy.tenant_phone,
+                    'tenant_email': property.current_occupancy.tenant_email,
+                    'lease_start_date': property.current_occupancy.lease_start_date.strftime('%Y-%m-%d'),
+                    'lease_end_date': property.current_occupancy.lease_end_date.strftime('%Y-%m-%d'),
+                    'payments_completed': sum(1 for p in property.current_occupancy.payments if p.status == 'paid')
+                }
+
+            return jsonify(response_data)
 
         except Exception as e:
-            print(f"Error in full property details route: {str(e)}")
+            print(f"Error fetching property details: {str(e)}")
             return jsonify({'error': str(e)}), 500
+
+
+    @app.route('/api/documents/<int:document_id>/download', methods=['GET'])
+    def download_document(document_id):
+        """Download a document by its ID."""
+        try:
+            # Fetch the document from the database
+            document = Document.query.get_or_404(document_id)
+
+            # Check if the file exists
+            if not os.path.exists(document.file_path):
+                return jsonify({'error': 'File not found'}), 404
+
+            # Serve the file for download
+            return send_file(document.file_path, as_attachment=True)
+
+        except Exception as e:
+            print(f"Error downloading document: {str(e)}")
+            return jsonify({'error': 'Failed to download document'}), 500
 
     app.add_url_rule('/api/properties', view_func=PropertyView.as_view('properties'))
     app.add_url_rule(
@@ -1192,6 +1279,7 @@ def register_routes(app):
         methods=['GET', 'PUT', 'DELETE']  
     )
     app.add_url_rule('/api/properties/overview', view_func=PropertyOverviewView.as_view('properties_overview'))
+
 # ///////////////////////////////////////////////////////////
 
     # Occupancy routes
@@ -1521,6 +1609,37 @@ def register_routes(app):
     @app.route('/documents.html')
     def documents_page2():
         return render_template('documents.html')
+
+    @app.route('/api/properties/<property_id>/documents', methods=['POST'])
+    def upload_file(property_id):
+        # Check if the request has a file
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part in the request'}), 400
+
+        file = request.files['file']
+
+        # Check if a file was selected
+        if file.filename == '':
+            return jsonify({'error': 'No file selected for uploading'}), 400
+
+        # Validate and save the file
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)  # Sanitize the filename
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)  # Save the file to the server
+
+            # Save file metadata to the database
+            new_document = Document(
+                property_id=property_id,  # Get the property ID from the URL
+                title=request.form.get('title', filename),  # Optional title, defaults to filename
+                file_path=file_path
+            )
+            db.session.add(new_document)
+            db.session.commit()
+
+            return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
+
+        return jsonify({'error': 'Invalid file type'}), 400
     
     app.add_url_rule(
         '/api/properties/<property_id>/documents', 
