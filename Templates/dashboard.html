@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - PropManager</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/commonStyles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -50,422 +51,248 @@
     </nav>
 
     <div class="container-fluid dashboard-container">
-        <div class="row">
-                <!-- Dashboard Overview -->
-                <div class="col-12 mt-4">
-                    <h2>Dashboard Overview</h2>
-                    <div class="row mt-3">
-                        <div class="col-md-4">
-                            <div class="stat-card">
-                                <i class="fas fa-building"></i>
-                                <h3>Total Properties</h3>
-                                <p class="number">12</p>
-                                <p class="status">2 Vacant</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="stat-card">
-                                <i class="fas fa-users"></i>
-                                <h3>Total Tenants</h3>
-                                <p class="number">45</p>
-                                <p class="status">3 New This Month</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="stat-card">
-                                <i class="fas fa-dollar-sign"></i>
-                                <h3>Monthly Income</h3>
-                                <p class="number">$52,000</p>
-                                <p class="status">+5% from last month</p>
-                            </div>
-                        </div>
+        <div class="row mt-4">
+            <!-- Property Statistics -->
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <i class="fas fa-building"></i>
+                    <h3>Properties</h3>
+                    <p class="number" id="totalProperties">0</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" id="occupancyRate" style="width: 0%"></div>
                     </div>
+                    <small class="mt-2 d-block" id="occupancyText">Occupancy Rate: 0%</small>
                 </div>
-
-                <!-- Recent Activities-->
-                <div class="col-md-8 mt-4">
-                    <div class="content-card">
-                        <h3>Recent Activities</h3>
-                        <div class="activity-list">
-                            <div class="activity-item">
-                                <i class="fas fa-key"></i>
-                                <div class="activity-details">
-                                    <h4>New Tenant Move-in</h4>
-                                    <p>Apt 4B - John Smith</p>
-                                    <small>Today at 10:30 AM</small>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <i class="fas fa-file-contract"></i>
-                                <div class="activity-details">
-                                    <h4>Lease Renewal</h4>
-                                    <p>Unit 2A - Sarah Johnson</p>
-                                    <small>Yesterday at 3:45 PM</small>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <div class="activity-details">
-                                    <h4>Rent Payment Received</h4>
-                                    <p>Unit 5C - Michael Brown</p>
-                                    <small>2 days ago</small>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <i class="fas fa-home"></i>
+                    <h3>Occupied Units</h3>
+                    <p class="number" id="occupiedUnits">0</p>
+                    <small class="text-white">Active Leases</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <i class="fas fa-dollar-sign"></i>
+                    <h3>Total Revenue</h3>
+                    <p class="number" id="totalRevenue">$0</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" id="collectionRate" style="width: 0%"></div>
                     </div>
+                    <small class="mt-2 d-block" id="collectionText">Collection Rate: 0%</small>
                 </div>
-                <!-- Quick Actions -->
-                <div class="col-md-4 mt-4">
-                    <div class="content-card">
-                        <h3>Quick Actions</h3>
-                        <div class="quick-actions">
-                            <button class="action-btn" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
-                                <i class="fas fa-plus-circle"></i>
-                                Add New Property
-                            </button>
-                            <button class="action-btn" data-bs-toggle="modal" data-bs-target="#propertySelectModal" data-action="addTenant">
-                                <i class="fas fa-user-plus"></i>
-                                Add New Tenant
-                            </button>
-                            <button class="action-btn" data-bs-toggle="modal" data-bs-target="#propertySelectModal" data-action="uploadDocument">
-                                <i class="fas fa-file-upload"></i>
-                                Upload Document
-                            </button>
-                            <button class="action-btn" data-bs-toggle="modal" data-bs-target="#propertySelectModal" data-action="sendNotice">
-                                <i class="fas fa-envelope"></i>
-                                Send Notice
-                            </button>
-                        </div>
-                    </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Pending Payments</h3>
+                    <p class="number" id="pendingAmount">$0</p>
+                    <small class="text-white" id="overdueCount">0 overdue payments</small>
                 </div>
-
             </div>
         </div>
 
-        <!-- Add Property Modal -->
-        <div class="modal fade" id="addPropertyModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add New Property</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="row mt-4">
+            <!-- Recent Activities -->
+            <div class="col-md-6">
+                <div class="dashboard-card">
+                    <h3>Recent Activities</h3>
+                    <div id="recentActivities">
+                        <!-- Activities will be loaded here -->
                     </div>
-                    <div class="modal-body">
-                        <form id="addPropertyForm">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Property Name/Address</label>
-                                        <input type="text" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Property Type</label>
-                                        <select class="form-select" required>
-                                            <option value="">Select type...</option>
-                                            <option>Apartment</option>
-                                            <option>House</option>
-                                            <option>Commercial</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Number of Units</label>
-                                        <input type="number" class="form-control" min="1" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Property Images</label>
-                                        <input type="file" class="form-control" multiple accept="image/*">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Description</label>
-                                        <textarea class="form-control" rows="4"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                </div>
+            </div>
+
+            <!-- Alerts and Notifications -->
+            <div class="col-md-6">
+                <div class="dashboard-card">
+                    <h3>Alerts & Notifications</h3>
+                    <div id="upcomingExpirations">
+                        <!-- Lease expirations will be loaded here -->
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="saveProperty">Add Property</button>
+                    <div id="overduePayments">
+                        <!-- Overdue payments will be loaded here -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Property Select Modal -->
-        <div class="modal fade" id="propertySelectModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Select Property</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row" id="propertyGrid">
-                            <!-- Property cards will be loaded here -->
+        <!-- Notification Settings -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="dashboard-card">
+                    <h3>Notification Settings</h3>
+                    <form id="notificationForm">
+                        <div class="mb-3">
+                            <label for="propertySelect" class="form-label">Select Property</label>
+                            <select class="form-select" id="propertySelect">
+                                <!-- Options will be loaded dynamically -->
+                            </select>
                         </div>
-                    </div>
+                        <div class="mb-3">
+                            <label for="notificationPeriod" class="form-label">Notification Period (days)</label>
+                            <select class="form-select" id="notificationPeriod">
+                                <option value="7">7 days</option>
+                                <option value="15">15 days</option>
+                                <option value="30">30 days</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Set Notifications</button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Details Modal -->
-        <div class="modal fade" id="detailsModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="detailsModalLabel">Enter Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="detailsForm">
-                            <!-- Dynamic content will be loaded here -->
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="submitDetails">Submit</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Sample data - In a real application, this would come from a database
-            const properties = [
-                { id: 1, name: '123 Main Street', image: '/images/Villa1_Slideshow.webp', type: 'Apartment' },
-                { id: 2, name: '456 Oak Avenue', image: '/images/Villa2_Slideshow.jpg', type: 'House' },
-                // Add more properties as needed
-            ];
+        // Function to format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
 
-            let tasks = [
-                { id: 1, description: 'Property Inspection - 123 Main St', dueDate: '2024-01-20', property: '123 Main Street' },
-                { id: 2, description: 'Lease Renewal Meeting - Unit 5B', dueDate: '2024-01-22', property: '456 Oak Avenue' },
-                { id: 3, description: 'Maintenance Follow-up - Building A', dueDate: '2024-01-25', property: '123 Main Street' }
-            ];
+        // Function to load dashboard data
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard');
+                if (!response.ok) throw new Error('Failed to fetch dashboard data');
+                
+                const data = await response.json();
+                
+                // Update Property Statistics
+                document.getElementById('totalProperties').textContent = data.property_stats.total;
+                document.getElementById('occupiedUnits').textContent = data.property_stats.occupied;
+                document.getElementById('occupancyRate').style.width = `${data.property_stats.occupancy_rate}%`;
+                document.getElementById('occupancyText').textContent = `Occupancy Rate: ${data.property_stats.occupancy_rate}%`;
 
-            // Initialize modals
-            const propertySelectModal = document.getElementById('propertySelectModal');
-            const detailsModal = document.getElementById('detailsModal');
-            const addTaskModal = document.getElementById('addTaskModal');
-            let selectedAction = '';
+                // Update Financial Statistics
+                document.getElementById('totalRevenue').textContent = formatCurrency(data.financial_stats.total_collected);
+                document.getElementById('pendingAmount').textContent = formatCurrency(data.financial_stats.total_pending);
+                document.getElementById('collectionRate').style.width = `${data.financial_stats.collection_rate}%`;
+                document.getElementById('collectionText').textContent = `Collection Rate: ${data.financial_stats.collection_rate}%`;
 
-            // Load properties into the property grid
-            function loadPropertyGrid() {
-                const propertyGrid = document.getElementById('propertyGrid');
-                propertyGrid.innerHTML = properties.map(property => `
-                    <div class="col-md-6 mb-3">
-                        <div class="property-card" data-property-id="${property.id}">
-                            <img src="${property.image}" class="property-image" alt="${property.name}">
-                            <div class="property-info">
-                                <h6>${property.name}</h6>
-                                <small>${property.type}</small>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Add click handlers to property cards
-                document.querySelectorAll('.property-card').forEach(card => {
-                    card.addEventListener('click', function() {
-                        const propertyId = this.dataset.propertyId;
-                        handlePropertySelection(propertyId);
-                    });
-                });
-            }
-
-            // Load tasks into the task list
-            function loadTasks() {
-                const taskList = document.getElementById('taskList');
-                taskList.innerHTML = tasks.map(task => `
-                    <div class="task-item" data-task-id="${task.id}">
+                // Update Recent Activities
+                const activitiesContainer = document.getElementById('recentActivities');
+                activitiesContainer.innerHTML = data.recent_activities.map(activity => `
+                    <div class="activity-item">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <input type="checkbox" id="task${task.id}">
-                                <label for="task${task.id}">${task.description}</label>
-                                <span class="due-date">Due: ${formatDate(task.dueDate)}</span>
+                                <strong>${activity.property}</strong> - ${activity.tenant}
+                                <br>
+                                <small>Payment ${activity.status}: ${formatCurrency(activity.amount)}</small>
                             </div>
-                            <button class="btn btn-danger btn-sm delete-task" data-task-id="${task.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <span class="status-badge status-${activity.status}">${activity.status}</span>
                         </div>
                     </div>
                 `).join('');
 
-                // Add delete handlers
-                document.querySelectorAll('.delete-task').forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const taskId = this.dataset.taskId;
-                        deleteTask(taskId);
-                    });
+                // Update Alerts
+                const expirationsContainer = document.getElementById('upcomingExpirations');
+                expirationsContainer.innerHTML = data.upcoming_expirations.map(exp => `
+                    <div class="alert-card">
+                        <h5>Lease Expiring Soon</h5>
+                        <p><strong>${exp.property}</strong> - ${exp.tenant}</p>
+                        <small>Expires in ${exp.days_remaining} days (${exp.expiry_date})</small>
+                    </div>
+                `).join('');
+
+                const overdueContainer = document.getElementById('overduePayments');
+                overdueContainer.innerHTML = data.overdue_payments.map(payment => `
+                    <div class="alert-card">
+                        <h5>Overdue Payment</h5>
+                        <p><strong>${payment.property}</strong> - ${payment.tenant}</p>
+                        <p>${formatCurrency(payment.amount)} - ${payment.days_overdue} days overdue</p>
+                        <small>Due date: ${payment.due_date}</small>
+                    </div>
+                `).join('');
+
+                // Update overdue count
+                document.getElementById('overdueCount').textContent = 
+                    `${data.overdue_payments.length} overdue payments`;
+
+                // Load properties into the notification form
+                if (data.properties && data.properties.length > 0) {
+                    const propertySelect = document.getElementById('propertySelect');
+                    propertySelect.innerHTML = data.properties.map(p => `
+                        <option value="${p.property_id}">${p.street_name}, ${p.city}</option>
+                    `).join('');
+                } else {
+                    document.getElementById('propertySelect').innerHTML = '<option value="">No properties available</option>';
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                alert('Failed to load dashboard data. Please try again.');
+            }
+        }
+
+        // Function to set notifications
+        async function setNotifications(event) {
+            event.preventDefault();
+            
+            const propertyId = document.getElementById('propertySelect').value;
+            const period = document.getElementById('notificationPeriod').value;
+
+            if (!propertyId) {
+                alert('Please select a property');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/properties/${propertyId}/notifications`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        notification_type: 'lease_renewal',
+                        notification_period: parseInt(period)
+                    })
                 });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to set notifications');
+                }
+
+                alert('Notifications set successfully!');
+                loadDashboard();  // Refresh dashboard data
+            } catch (error) {
+                console.error('Error setting notifications:', error);
+                alert(error.message || 'Failed to set notifications. Please try again.');
             }
-
-            // Handle property selection
-            function handlePropertySelection(propertyId) {
-                const property = properties.find(p => p.id == propertyId);
-                if (!property) return;
-
-                const propertySelectModalInstance = bootstrap.Modal.getInstance(propertySelectModal);
-                propertySelectModalInstance.hide();
-
-                // Show the appropriate details modal based on the selected action
-                showDetailsModal(selectedAction, property);
-            }
-
-            // Show details modal based on action
-            function showDetailsModal(action, property) {
-                const detailsForm = document.getElementById('detailsForm');
-                const detailsModalLabel = document.getElementById('detailsModalLabel');
+        }
+        
+        // load existing notifications
+        async function loadNotifications(propertyId) {
+            try {
+                const response = await fetch(`/api/properties/${propertyId}/notifications`);
+                const notifications = await response.json();
                 
-                detailsForm.innerHTML = ''; // Clear previous form content
-
-                switch(action) {
-                    case 'addOccupants':
-                        detailsModalLabel.textContent = `Add Occupants - ${property.name}`;
-                        detailsForm.innerHTML = `
-                            <div class="mb-3">
-                                <label class="form-label">Occupants Name</label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Phone</label>
-                                <input type="tel" class="form-control" required>
-                            </div>
-                        `;
-                        break;
-                    case 'uploadDocument':
-                        detailsModalLabel.textContent = `Upload Document - ${property.name}`;
-                        detailsForm.innerHTML = `
-                            <div class="mb-3">
-                                <label class="form-label">Document Title</label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Document Type</label>
-                                <select class="form-select" required>
-                                    <option value="">Select type...</option>
-                                    <option>Lease Agreement</option>
-                                    <option>Maintenance Report</option>
-                                    <option>Invoice</option>
-                                    <option>Other</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">File</label>
-                                <input type="file" class="form-control" required>
-                            </div>
-                        `;
-                        break;
-                    case 'sendNotice':
-                        detailsModalLabel.textContent = `Send Notice - ${property.name}`;
-                        detailsForm.innerHTML = `
-                            <div class="mb-3">
-                                <label class="form-label">Notice Type</label>
-                                <select class="form-select" required>
-                                    <option value="">Select type...</option>
-                                    <option>Maintenance Notice</option>
-                                    <option>Rent Reminder</option>
-                                    <option>General Announcement</option>
-                                    <option>Other</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Subject</label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Message</label>
-                                <textarea class="form-control" rows="4" required></textarea>
-                            </div>
-                        `;
-                        break;
+                if (notifications.length > 0) {
+                    const notification = notifications[0];  // Get the first notification
+                    document.getElementById('notificationPeriod').value = notification.notification_period;
                 }
-
-                const detailsModalInstance = new bootstrap.Modal(detailsModal);
-                detailsModalInstance.show();
+            } catch (error) {
+                console.error('Error loading notifications:', error);
             }
+        }
+        
+        // Load dashboard data when page loads
+        document.addEventListener('DOMContentLoaded', loadDashboard);
 
-            // Delete task
-            function deleteTask(taskId) {
-                if (confirm('Are you sure you want to delete this task?')) {
-                    tasks = tasks.filter(task => task.id != taskId);
-                    loadTasks();
-                }
-            }
+        // Refresh dashboard data every 5 minutes
+        setInterval(loadDashboard, 300000);
 
-            // Format date
-            function formatDate(dateString) {
-                const options = { year: 'numeric', month: 'short', day: 'numeric' };
-                return new Date(dateString).toLocaleDateString(undefined, options);
-            }
-
-            // Event Listeners
-            propertySelectModal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                selectedAction = button.getAttribute('data-action');
-                loadPropertyGrid();
-            });
-
-            // Save new task
-            document.getElementById('saveTask').addEventListener('click', function() {
-                const description = document.getElementById('taskDescription').value;
-                const dueDate = document.getElementById('taskDueDate').value;
-                const property = document.getElementById('taskProperty').value;
-
-                if (description && dueDate) {
-                    const newTask = {
-                        id: tasks.length + 1,
-                        description,
-                        dueDate,
-                        property
-                    };
-                    tasks.push(newTask);
-                    loadTasks();
-
-                    const addTaskModalInstance = bootstrap.Modal.getInstance(addTaskModal);
-                    addTaskModalInstance.hide();
-                    document.getElementById('addTaskForm').reset();
-                }
-            });
-
-            // Save new property
-            document.getElementById('saveProperty').addEventListener('click', function() {
-                // Handle property save logic here
-                const addPropertyModalInstance = bootstrap.Modal.getInstance(document.getElementById('addPropertyModal'));
-                addPropertyModalInstance.hide();
-                document.getElementById('addPropertyForm').reset();
-            });
-
-            // Handle details submission
-            document.getElementById('submitDetails').addEventListener('click', function() {
-                // Handle form submission based on the action
-                const detailsModalInstance = bootstrap.Modal.getInstance(detailsModal);
-                detailsModalInstance.hide();
-                document.getElementById('detailsForm').reset();
-            });
-
-            // Initial load
-            loadTasks();
-
-            // Load properties into task property select
-            const taskPropertySelect = document.getElementById('taskProperty');
-            properties.forEach(property => {
-                const option = document.createElement('option');
-                option.value = property.name;
-                option.textContent = property.name;
-                taskPropertySelect.appendChild(option);
-            });
-        });
+        // Set notifications on form submit
+        document.getElementById('notificationForm').addEventListener('submit', setNotifications);
     </script>
 </body>
 </html>

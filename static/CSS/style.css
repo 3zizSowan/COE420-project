@@ -446,229 +446,70 @@
 }
 
 /* Dashboard specific styles */
-.dashboard-container {
+.dashboard-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 20px;
-  margin-top: 20px;
-  background-color: #f8f9fa;
-  min-height: calc(100vh - 90px);
+  margin-bottom: 20px;
 }
 
-/* Stat Cards */
 .stat-card {
-  background: white;
+  background: rgb(0, 47, 108);
+  color: white;
+  border-radius: 10px;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
+  height: 100%;
 }
 
 .stat-card i {
-  font-size: 2rem;
-  color: rgb(0, 47, 108);
-  margin-bottom: 10px;
+  font-size: 2.5rem;
+  margin-bottom: 15px;
 }
 
 .stat-card .number {
   font-size: 2rem;
   font-weight: bold;
-  color: rgb(0, 47, 108);
-  margin: 10px 0;
-}
-
-.stat-card .status {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-/* Content Cards */
-.content-card {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: 100%;
-  width: 100%;
-  transition: transform 0.3s ease;
-}
-
-.content-card:hover {
-  transform: translateY(-5px);
-}
-
-.content-card h3 {
-  color: rgb(0, 47, 108);
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #f0f0f0;
-}
-
-/* Activity List */
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
 }
 
 .activity-item {
-  display: flex;
-  align-items: center;
   padding: 15px;
-  border-radius: 8px;
-  background: #f8f9fa;
-  transition: background-color 0.3s ease;
+  border-bottom: 1px solid #eee;
 }
 
-.activity-item:hover {
-  background: #e9ecef;
+.activity-item:last-child {
+  border-bottom: none;
 }
 
-.activity-item i {
-  font-size: 1.5rem;
-  color: rgb(0, 47, 108);
-  margin-right: 15px;
-}
-
-.activity-details h4 {
-  font-size: 1rem;
-  margin: 0;
-  color: rgb(0, 47, 108);
-}
-
-.activity-details p {
-  margin: 5px 0;
-  color: #666;
-}
-
-.activity-details small {
-  color: #999;
-}
-
-/* Quick Actions */
-.quick-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  background: #f8f9fa;
-  color: rgb(0, 47, 108);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.action-btn:hover {
-  background: rgb(0, 47, 108);
-  color: white;
-  transform: translateX(5px);
-}
-
-.action-btn i {
-  margin-right: 10px;
-}
-
-/* Task List */
-.task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.task-item {
-  display: flex;
-  align-items: center;
+.alert-card {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
   padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+  margin-bottom: 10px;
 }
 
-.task-item:hover {
-  background: #e9ecef;
+.progress {
+  height: 10px;
+  margin-top: 10px;
 }
 
-.task-item input[type="checkbox"] {
-  margin-right: 10px;
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
 }
 
-.task-item input[type="checkbox"]:checked + label {
-  text-decoration: line-through;
-  color: #999;
+.status-paid {
+  background: #d4edda;
+  color: #155724;
 }
 
-.task-item label {
-  flex-grow: 1;
-  margin: 0;
-  color: rgb(0, 47, 108);
-  cursor: pointer;
+.status-due {
+  background: #f8d7da;
+  color: #721c24;
 }
 
-.due-date {
-  color: #666;
-  font-size: 0.9rem;
-}
 
-/* Document List */
-.document-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.document-item {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.document-item:hover {
-  background: #e9ecef;
-  transform: translateX(5px);
-}
-
-.document-item i {
-  font-size: 1.5rem;
-  color: rgb(0, 47, 108);
-  margin-right: 15px;
-}
-
-.document-details {
-  flex-grow: 1;
-}
-
-.document-details h4 {
-  font-size: 1rem;
-  margin: 0;
-  color: rgb(0, 47, 108);
-}
-
-.btn-view {
-  padding: 8px 20px;
-  background: rgb(0, 47, 108);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-view:hover {
-  background: rgba(0, 47, 108, 0.9);
-  transform: translateY(-2px);
-}
 
 /* Dashboard Title */
 .dashboard-title {

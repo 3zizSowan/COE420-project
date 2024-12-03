@@ -11,6 +11,7 @@ from flask_migrate import Migrate
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from datetime import date
 
 
 app = Flask(__name__, template_folder='Templates')
@@ -392,81 +393,78 @@ class PropertyView(AuthenticatedMethodView):
         ]
         return jsonify(properties_data), 200
 
-
 class PropertyDetailView(AuthenticatedMethodView):
     def get(self, property_id):
-        """Get details for a specific property"""
-        property = Property.query.filter_by(
-            property_id=property_id, 
-            user_id=session['user_id']
-        ).first_or_404()
-
-        return jsonify({
-            'property_id': property.property_id,
-            'property_type': property.property_type,
-            'street_name': property.street_name,
-            'city': property.city,
-            'building_details': property.building_details,
-            'size_sqft': property.size_sqft,
-            'bedrooms': property.bedrooms,
-            'units': property.units,
-            'rent_per_month': property.rent_per_month,
-            'occupancy_status': property.occupancy_status
-        }), 200
-        
-        # return jsonify({
-        #     'property': {
-        #         'property_id': property.property_id,
-        #         'property_type': property.property_type,
-        #         'street_name': property.street_name,
-        #         'city': property.city,
-        #         'building_details': property.building_details,
-        #         'size_sqft': property.size_sqft,
-        #         'bedrooms': property.bedrooms,
-        #         'occupancy_status': property.occupancy_status
-        #     },
-        #     'occupancy': property.current_occupancy.to_dict() if property.current_occupancy else None,
-        #     'income_summary': property.get_income_summary()
-        # }), 200
-
-    def put(self, property_id):
-        """Update a property"""
-        property = Property.query.filter_by(
-            property_id=property_id, 
-            user_id=session['user_id']
-        ).first_or_404()
-
-        data = request.json
+        """Get comprehensive details for a specific property"""
         try:
-            for key, value in data.items():
-                if hasattr(property, key):
-                    setattr(property, key, value)
-            db.session.commit()
-            return jsonify({'message': 'Property updated successfully'}), 200
+            # Get property with all related information
+            property = Property.query.filter_by(
+                property_id=property_id, 
+                user_id=session['user_id']
+            ).first_or_404()
+
+            # Get current occupancy information if exists
+            occupancy_info = None
+            payment_summary = None
+            if property.current_occupancy:
+                # Get payment information
+                total_payments = len(property.current_occupancy.payments)
+                paid_payments = sum(1 for p in property.current_occupancy.payments if p.status == 'paid')
+                total_paid = sum(p.amount for p in property.current_occupancy.payments if p.status == 'paid')
+                total_due = sum(p.amount for p in property.current_occupancy.payments if p.status == 'due')
+
+                occupancy_info = {
+                    'tenant_name': property.current_occupancy.tenant_name,
+                    'tenant_phone': property.current_occupancy.tenant_phone,
+                    'tenant_email': property.current_occupancy.tenant_email,
+                    'lease_start_date': property.current_occupancy.lease_start_date.strftime('%Y-%m-%d'),
+                    'lease_end_date': property.current_occupancy.lease_end_date.strftime('%Y-%m-%d'),
+                    'total_rent': float(property.current_occupancy.total_rent),
+                    'payments_completed': f"{paid_payments}/{total_payments}",
+                    'payment_details': {
+                        'total_paid': float(total_paid),
+                        'total_due': float(total_due),
+                        'payment_percentage': (total_paid / property.current_occupancy.total_rent * 100) if property.current_occupancy.total_rent > 0 else 0
+                    }
+                }
+
+            # Get documents information
+            documents = [{
+                'document_id': doc.document_id,
+                'title': doc.title,
+                'upload_date': doc.upload_date.strftime('%Y-%m-%d')
+            } for doc in property.documents]
+
+            # Calculate financial metrics
+            income_summary = property.get_income_summary()
+
+            # Compile complete property information
+            property_details = {
+                'property_info': {
+                    'property_id': property.property_id,
+                    'property_type': property.property_type,
+                    'street_name': property.street_name,
+                    'city': property.city,
+                    'building_details': property.building_details,
+                    'size_sqft': property.size_sqft,
+                    'bedrooms': property.bedrooms,
+                    'units': property.units,
+                    'rent_per_month': property.rent_per_month,
+                    'occupancy_status': property.occupancy_status
+                },
+                'occupancy': occupancy_info,
+                'documents': {
+                    'total_documents': len(documents),
+                    'documents_list': documents
+                },
+                'financial_summary': income_summary
+            }
+
+            return jsonify(property_details), 200
+
         except Exception as e:
-            db.session.rollback()
-            return jsonify({'error': str(e)}), 400
-
-    def delete(self, property_id):
-        """Delete a property"""
-        property = Property.query.filter_by(
-            property_id=property_id, 
-            user_id=session['user_id']
-        ).first_or_404()
-
-        if property.current_occupancy:
-            return jsonify({
-                'warning': 'Property has active occupancy. Confirm deletion?',
-                'requires_confirmation': True
-            }), 200
-
-        try:
-            db.session.delete(property)
-            db.session.commit()
-            return jsonify({'message': 'Property deleted successfully'}), 200
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'error': str(e)}), 400
+            print(f"Error fetching property details: {str(e)}")
+            return jsonify({'error': str(e)}), 500
 
 class OccupancyView(AuthenticatedMethodView):
     def post(self, property_id):
@@ -504,16 +502,23 @@ class OccupancyView(AuthenticatedMethodView):
                 payment_amount = data['total_rent'] / data['number_of_payments']
                 start_date = datetime.strptime(data['lease_start_date'], '%Y-%m-%d')
 
+                payment_statuses = data.get('payments', [])
+
                 for i in range(data['number_of_payments']):
                     due_date = start_date + timedelta(days=(30 * i))
+
+                    payment_status = 'due'
+                    if i < len(payment_statuses):
+                        # Extract just the status string from the payment data
+                        payment_status = payment_statuses[i].get('status', 'due')
+
                     payment = Payment(
                         occupancy_id=occupancy.occupancy_id,
                         amount=payment_amount,
                         due_date=due_date,
-                        status='due'
+                        status=payment_status
                     )
                     db.session.add(payment)
-
                 # Update property status
                 property.occupancy_status = 'occupied'
                 
@@ -525,7 +530,8 @@ class OccupancyView(AuthenticatedMethodView):
                     'occupancy_id': occupancy.occupancy_id,
                     'payment_schedule': [{
                         'due_date': payment.due_date.strftime('%Y-%m-%d'),
-                        'amount': payment.amount
+                        'amount': payment.amount,
+                        'status': payment.status
                     } for payment in occupancy.payments]
                 }), 201
 
@@ -594,11 +600,10 @@ class OccupancyView(AuthenticatedMethodView):
         try:
             start_date = datetime.strptime(data['lease_start_date'], '%Y-%m-%d')
             end_date = datetime.strptime(data['lease_end_date'], '%Y-%m-%d')
-            today = datetime.now().date()
-            
+            today = date.today()
             if start_date >= end_date:
                 raise ValueError("Lease start date must be before end date")
-            if start_date < datetime.now().date():
+            if start_date.strftime('%Y-%m-%d') < today.strftime("%%Y-%m-%d"):
                 raise ValueError("Lease start date cannot be in the past")
         except ValueError as e:
             raise ValueError(f"Invalid date format: {str(e)}")
@@ -612,6 +617,8 @@ class OccupancyView(AuthenticatedMethodView):
         return True
 
 
+      
+        
 class DocumentView(AuthenticatedMethodView):
     def get(self, property_id):
         """Get all documents for a property"""
@@ -823,26 +830,113 @@ class NotificationCheckView(AuthenticatedMethodView):
 class DashboardView(AuthenticatedMethodView):
     def get(self):
         """Get dashboard summary"""
-        user = User.query.get(session['user_id'])
-        properties = Property.query.filter_by(user_id=user.user_id).all()
-        
-        summary = {
-            'properties': {
-                'total': len(properties),
-                'vacant': sum(1 for p in properties if p.occupancy_status == 'vacant'),
-                'occupied': sum(1 for p in properties if p.occupancy_status == 'occupied')
-            },
-            'finances': {
-                'total_income': sum(p.get_income_summary()['total_paid'] for p in properties if p.current_occupancy),
-                'total_pending': sum(p.get_income_summary()['total_due'] for p in properties if p.current_occupancy),
-            },
-            'upcoming_renewals': sum(
-                1 for p in properties 
-                if p.current_occupancy and 
-                (p.current_occupancy.lease_end_date - datetime.now().date()).days <= 30
-            )
-        }
-        return jsonify(summary), 200
+        try:
+            if 'user_id' not in session:
+                return jsonify({'error': 'Not authenticated'}), 401
+
+            user_id = session['user_id']
+            today = datetime.now().date()
+
+            # Get all properties for the user
+            properties = Property.query.filter_by(user_id=user_id).all()
+            
+            # Property Statistics
+            total_properties = len(properties)
+            occupied_properties = sum(1 for p in properties if p.occupancy_status == 'occupied')
+            vacant_properties = total_properties - occupied_properties
+            occupancy_rate = (occupied_properties / total_properties * 100) if total_properties > 0 else 0
+
+            property_stats = {
+                'total': total_properties,
+                'occupied': occupied_properties,
+                'vacant': vacant_properties,
+                'occupancy_rate': round(occupancy_rate, 1)
+            }
+
+            # Financial Statistics
+            total_collected = 0
+            total_pending = 0
+            total_expected = 0
+
+            for property in properties:
+                if property.current_occupancy:
+                    total_expected += property.rent_per_month
+                    for payment in property.current_occupancy.payments:
+                        if payment.status == 'paid':
+                            total_collected += payment.amount
+                        elif payment.status == 'due':
+                            total_pending += payment.amount
+
+            collection_rate = (total_collected / total_expected * 100) if total_expected > 0 else 0
+            
+            financial_stats = {
+                'total_collected': total_collected,
+                'total_pending': total_pending,
+                'total_expected': total_expected,
+                'collection_rate': round(collection_rate, 1)
+            }
+
+            # Recent Activities (last 5 payments)
+            recent_activities = []
+            for property in properties:
+                if property.current_occupancy:
+                    for payment in sorted(property.current_occupancy.payments, 
+                                       key=lambda x: x.due_date, reverse=True)[:5]:
+                        recent_activities.append({
+                            'property': property.street_name,
+                            'tenant': property.current_occupancy.tenant_name,
+                            'amount': float(payment.amount),
+                            'due_date': payment.due_date.strftime('%Y-%m-%d'),
+                            'status': payment.status
+                        })
+
+            # Upcoming Lease Expirations (next 30 days)
+            upcoming_expirations = []
+            for property in properties:
+                if property.current_occupancy:
+                    days_until_expiry = (property.current_occupancy.lease_end_date - today).days
+                    if 0 <= days_until_expiry <= 30:
+                        upcoming_expirations.append({
+                            'property': property.street_name,
+                            'tenant': property.current_occupancy.tenant_name,
+                            'expiry_date': property.current_occupancy.lease_end_date.strftime('%Y-%m-%d'),
+                            'days_remaining': days_until_expiry
+                        })
+
+            # Overdue Payments
+            overdue_payments = []
+            for property in properties:
+                if property.current_occupancy:
+                    for payment in property.current_occupancy.payments:
+                        if payment.status == 'due' and payment.due_date < today:
+                            overdue_payments.append({
+                                'property': property.street_name,
+                                'tenant': property.current_occupancy.tenant_name,
+                                'amount': float(payment.amount),
+                                'due_date': payment.due_date.strftime('%Y-%m-%d'),
+                                'days_overdue': (today - payment.due_date).days
+                            })
+
+            # Get all properties for notification settings
+            properties_list = [{
+                'property_id': p.property_id,
+                'street_name': p.street_name,
+                'city': p.city
+            } for p in properties]
+
+            return jsonify({
+                'property_stats': property_stats,
+                'financial_stats': financial_stats,
+                'recent_activities': recent_activities,
+                'upcoming_expirations': upcoming_expirations,
+                'overdue_payments': overdue_payments,
+                'properties': properties_list  # For notification settings dropdown
+            }), 200
+
+        except Exception as e:
+            print(f"Dashboard Error: {str(e)}")  # For debugging
+            return jsonify({'error': 'Failed to load dashboard data'}), 500
+
 
 class PropertySummaryView(AuthenticatedMethodView):
     def get(self, property_id):
@@ -1045,6 +1139,10 @@ def register_routes(app):
     @app.route('/dashboard')
     def dashboard2():
             return render_template('dashboard.html')
+
+    app.add_url_rule('/api/dashboard', view_func=DashboardView.as_view('dashboard_api'))
+
+    
 # ///////////////////////////////////////////////////////////
 
     # Property routes
@@ -1071,6 +1169,21 @@ def register_routes(app):
             'rent_per_month': property.rent_per_month,
             'occupancy_status': property.occupancy_status
         }), 200
+
+
+    @app.route('/api/properties/<property_id>/full-details', methods=['GET'])
+    def get_full_property_details(property_id):
+        """Get comprehensive property details including occupancy and documents"""
+        try:
+            if 'user_id' not in session:
+                return jsonify({'error': 'User not logged in'}), 401
+
+            property_view = PropertyDetailView()
+            return property_view.get(property_id)
+
+        except Exception as e:
+            print(f"Error in full property details route: {str(e)}")
+            return jsonify({'error': str(e)}), 500
 
     app.add_url_rule('/api/properties', view_func=PropertyView.as_view('properties'))
     app.add_url_rule(
@@ -1434,14 +1547,15 @@ def register_routes(app):
     )
     
     # # Notification routes
-    # app.add_url_rule(
-    #     '/api/properties/<property_id>/notifications',
-    #     view_func=NotificationView.as_view('notifications')
-    # )
-    # app.add_url_rule(
-    #     '/api/notifications/check',
-    #     view_func=NotificationCheckView.as_view('check_notifications')
-    # )
+    app.add_url_rule(
+        '/api/properties/<property_id>/notifications',
+        view_func=NotificationView.as_view('notifications'),
+        methods=['GET', 'POST', 'DELETE']
+    )
+    app.add_url_rule(
+        '/api/notifications/check',
+        view_func=NotificationCheckView.as_view('check_notifications')
+    )
     
     # # Summary routes
     # app.add_url_rule(

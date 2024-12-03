@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Properties - PropManager</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/properties.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/commonStyles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -93,10 +94,10 @@
                         {% for property in properties %}
                         <div class="col-lg-4 col-md-6">
                             <div class="property-card">
-                                <div class="property-image">
+                                <!-- <div class="property-image">
                                     <img src="{{ url_for('static', filename='images/' + property.image) }}" alt="{{ property.street_name }}">
                                     <span class="status-badge">{{ property.occupancy_status }}</span>
-                                </div>
+                                </div> -->
                                 <div class="property-details">
                                     <h4>{{ property.street_name }}, {{ property.city }}</h4>
                                     <p class="property-type">{{ property.property_type }}</p>
@@ -122,6 +123,7 @@
                                     <button class="btn btn-danger btn-delete" data-property-id="{{ property.property_id }}" data-bs-toggle="modal" data-bs-target="#deletePropertyModal">
                                         Delete Property
                                     </button>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -421,6 +423,26 @@
         </div>
     </div>
 
+
+
+    <!-- Display property in details -->
+    <div class="modal fade" id="propertyDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Property Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="propertyDetailsContainer"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -552,10 +574,6 @@
             const propertyCard = `
                 <div class="col-lg-4 col-md-6">
                     <div class="property-card">
-                        <div class="property-image">
-                            <img src="/static/images/${property.image}" alt="${property.street_name}">
-                            <span class="status-badge">${property.occupancy_status}</span>
-                        </div>
                         <div class="property-details">
                             <h4>${property.street_name}, ${property.city}</h4>
                             <p class="property-type">${property.property_type}</p>
@@ -579,12 +597,16 @@
                                 </div>
                             </div>
                             <div class="property-actions mt-3 d-flex gap-2">
+                                <button class="btn btn-info" onclick="displayPropertyDetails('${property.property_id}')">
+                                        <i class="fas fa-info-circle"></i> View Details
+                                </button>
                                 <button class="btn btn-success" onclick="openModifyModal('${property.property_id}')">
                                     <i class="fas fa-edit"></i> Modify
                                 </button>
                                 <button class="btn btn-danger" onclick="openDeleteModal('${property.property_id}')">
                                     <i class="fas fa-trash"></i> Delete
                                 </button>
+                                
                             </div>
                         </div>
                     </div>
@@ -693,7 +715,7 @@
             alert('Failed to update property. Please try again.');
         }
     }
-
+ 
     // open delete property function
     async function openDeleteModal(propertyId) {
     try {
@@ -764,6 +786,132 @@
         console.log('calling fxn app prop')
         addProperty();
     });
+
+
+    async function displayPropertyDetails(propertyId) {
+        try {
+            const response = await fetch(`/api/properties/${propertyId}/full-details`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch property details');
+            }
+            
+            const propertyDetails = await response.json();
+            
+            // Create HTML content for property details
+            const propertyContent = `
+                <div class="property-details-container">
+                    <!-- Property Information -->
+                    <div class="section">
+                        <h3>Property Information</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong>Type:</strong> ${propertyDetails.property_info.property_type}
+                            </div>
+                            <div class="info-item">
+                                <strong>Address:</strong> ${propertyDetails.property_info.street_name}, ${propertyDetails.property_info.city}
+                            </div>
+                            <div class="info-item">
+                                <strong>Size:</strong> ${propertyDetails.property_info.size_sqft} sq ft
+                            </div>
+                            <div class="info-item">
+                                <strong>Bedrooms:</strong> ${propertyDetails.property_info.bedrooms}
+                            </div>
+                            <div class="info-item">
+                                <strong>Units:</strong> ${propertyDetails.property_info.units}
+                            </div>
+                            <div class="info-item">
+                                <strong>Monthly Rent:</strong> $${propertyDetails.property_info.rent_per_month}
+                            </div>
+                            <div class="info-item">
+                                <strong>Status:</strong> 
+                                <span class="status-badge ${propertyDetails.property_info.occupancy_status}">
+                                    ${propertyDetails.property_info.occupancy_status}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Occupancy Information -->
+                    ${propertyDetails.occupancy ? `
+                        <div class="section">
+                            <h3>Current Occupancy</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <strong>Tenant:</strong> ${propertyDetails.occupancy.tenant_name}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Contact:</strong> ${propertyDetails.occupancy.tenant_phone}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Email:</strong> ${propertyDetails.occupancy.tenant_email}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Lease Period:</strong> 
+                                    ${propertyDetails.occupancy.lease_start_date} to ${propertyDetails.occupancy.lease_end_date}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Payments Completed:</strong> ${propertyDetails.occupancy.payments_completed}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Financial Summary -->
+                    <div class="section">
+                        <h3>Financial Summary</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong>Total Rent:</strong> $${propertyDetails.financial_summary.total_rent}
+                            </div>
+                            <div class="info-item">
+                                <strong>Total Paid:</strong> $${propertyDetails.financial_summary.total_paid}
+                            </div>
+                            <div class="info-item">
+                                <strong>Total Due:</strong> $${propertyDetails.financial_summary.total_due}
+                            </div>
+                            <div class="info-item">
+                                <strong>Payment Progress:</strong> 
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: ${propertyDetails.financial_summary.payment_percentage}%">
+                                        ${propertyDetails.financial_summary.payment_percentage.toFixed(1)}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documents -->
+                    <div class="section">
+                        <h3>Documents (${propertyDetails.documents.total_documents})</h3>
+                        ${propertyDetails.documents.documents_list.length > 0 ? `
+                            <div class="documents-list">
+                                ${propertyDetails.documents.documents_list.map(doc => `
+                                    <div class="document-item">
+                                        <i class="fas fa-file-alt"></i>
+                                        <span>${doc.title}</span>
+                                        <small>Uploaded: ${doc.upload_date}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p>No documents uploaded yet.</p>'}
+                    </div>
+                </div>
+            `;
+
+            // Display the content in a modal or designated container
+            const detailsContainer = document.getElementById('propertyDetailsContainer');
+            detailsContainer.innerHTML = propertyContent;
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('propertyDetailsModal'));
+            modal.show();
+
+        } catch (error) {
+            console.error('Error displaying property details:', error);
+            alert('Failed to load property details. Please try again.');
+        }
+    }
+
  </script>
 </body>
 </html>

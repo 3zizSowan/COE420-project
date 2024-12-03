@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Occupants Info - PropManager</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/occupants.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/commonStyles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -474,76 +475,46 @@
 
         // Handle form submission
         document.getElementById('confirmButton').addEventListener('click', async function() {
-            const occupancyData = {
-                property_id: document.getElementById('propertySelect').value,
-                tenant_name: document.getElementById('tenantName').value,
-                tenant_phone: document.getElementById('tenantPhone').value,
-                tenant_email: document.getElementById('tenantEmail').value,
-                lease_start_date: document.getElementById('leaseStart').value,
-                lease_end_date: document.getElementById('leaseEnd').value,
-                total_rent: parseFloat(document.getElementById('totalRent').value),
-                number_of_payments: parseInt(document.getElementById('numberOfPayments').value),
-                payments: Array.from(document.querySelectorAll('.row.mb-2')).map(row => ({
+            try {
+                const propertyId = document.getElementById('propertySelect').value;
+                const payments = Array.from(document.querySelectorAll('#paymentsList .row.mb-2')).map(row => ({
                     date: row.querySelector('.payment-date').value,
                     amount: parseFloat(row.querySelector('.payment-amount').value),
-                    status: row.querySelector('.payment-status').value
-                }))
-            };
+                    status: row.querySelector('.payment-status').value // Include the payment status
+                }));
 
-            // Show confirmation modal with summary
-            const summary = document.getElementById('occupancySummary');
-            summary.innerHTML = `
-                <p><strong>Property:</strong> ${document.getElementById('propertySelect').selectedOptions[0].text}</p>
-                <p><strong>Tenant:</strong> ${occupancyData.tenant_name}</p>
-                <p><strong>Lease Period:</strong> ${occupancyData.lease_start_date} to ${occupancyData.lease_end_date}</p>
-                <p><strong>Total Rent:</strong> $${occupancyData.total_rent}</p>
-                <p><strong>Number of Payments:</strong> ${occupancyData.number_of_payments}</p>
-            `;
+                const response = await fetch(`/api/properties/${propertyId}/occupancy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tenant_name: document.getElementById('tenantName').value,
+                        tenant_phone: document.getElementById('tenantPhone').value,
+                        tenant_email: document.getElementById('tenantEmail').value,
+                        lease_start_date: document.getElementById('leaseStart').value,
+                        lease_end_date: document.getElementById('leaseEnd').value,
+                        total_rent: parseFloat(document.getElementById('totalRent').value),
+                        number_of_payments: parseInt(document.getElementById('numberOfPayments').value),
+                        payments: payments // Include the payments array with statuses
+                    })
+                });
 
-            const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-            confirmationModal.show();
-
-            // Handle final confirmation
-            document.getElementById('finalConfirmButton').onclick = async function() {
-                try {
-                    const propertyId = document.getElementById('propertySelect').value;
-                    const response = await fetch(`/api/properties/${propertyId}/occupancy`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            tenant_name: document.getElementById('tenantName').value,
-                            tenant_phone: document.getElementById('tenantPhone').value,
-                            tenant_email: document.getElementById('tenantEmail').value,
-                            lease_start_date: document.getElementById('leaseStart').value,
-                            lease_end_date: document.getElementById('leaseEnd').value,
-                            total_rent: parseFloat(document.getElementById('totalRent').value),
-                            number_of_payments: parseInt(document.getElementById('numberOfPayments').value)
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Failed to add occupancy');
-                    }
-
-                    const confirmationModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
-                    confirmationModal.hide();
-                    
-                    const addOccupancyModal = bootstrap.Modal.getInstance(document.getElementById('addOccupancyModal'));
-                    addOccupancyModal.hide();
-
-                    alert('Occupancy added successfully!');
-                    location.reload(); // Refresh the page to show new occupancy
-                } catch (error) {
-                    console.error('Error adding occupancy:', error);
-                    alert(error.message || 'Failed to add occupancy. Please try again.');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to add occupancy');
                 }
-            };
+
+                const addOccupancyModal = bootstrap.Modal.getInstance(document.getElementById('addOccupancyModal'));
+                addOccupancyModal.hide();
+
+                alert('Occupancy added successfully!');
+                location.reload(); // Refresh the page to show new occupancy
+            } catch (error) {
+                console.error('Error adding occupancy:', error);
+                alert(error.message || 'Failed to add occupancy. Please try again.');
+            }
         });
-
-
 
         
         //LOADING AND DISPLAYING CURRENT OCCUPANTS

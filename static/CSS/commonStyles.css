@@ -1,0 +1,85 @@
+:root {
+    --primary-color: rgb(0, 47, 108); /* Main color */
+    --secondary-color: #b59410; /* Accent color */
+    --success-color: #198754; /* Success color */
+    --danger-color: #dc3545; /* Danger color */
+    --warning-color: #ffc107; /* Warning color */
+    --light-bg: #f8f9fa; /* Light background */
+    --dark-bg: #343a40; /* Dark background */
+    --text-color: #34495e; /* Text color */
+    --muted-text-color: #666; /* Muted text color */
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: rgba(0, 47, 108, 0.9);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(185, 148, 16, 0.9);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: black;
+}
+.btn:disabled {
+    background-color: var(--muted-text-color);
+    cursor: not-allowed;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -10px;
+}
+
+.col {
+    flex: 1;
+    padding: 10px;
+    min-width: 250px; /* Minimum width for responsiveness */
+}
+
+@media (max-width: 768px) {
+    .col {
+        flex: 100%; /* Stack columns on small screens */
+    }
+}
