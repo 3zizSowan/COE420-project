@@ -116,18 +116,36 @@ class Property(db.Model):
                 'total_rent': 0,
                 'total_paid': 0,
                 'total_due': 0,
-                'payment_percentage': 0
+                'payment_percentage': 0,
+                'overdue_amount': 0
             }
             
+        today = datetime.now().date()
         total_paid = sum(p.amount for p in self.current_occupancy.payments if p.status == 'paid')
         total_due = sum(p.amount for p in self.current_occupancy.payments if p.status == 'due')
+        
+        # Calculate overdue amount (due payments with due_date < today)
+        overdue_amount = sum(
+            p.amount 
+            for p in self.current_occupancy.payments 
+            if p.status == 'due' and p.due_date < today
+        )
+
         return {
             'total_rent': self.current_occupancy.total_rent,
             'total_paid': total_paid,
             'total_due': total_due,
-            'payment_percentage': (total_paid / self.current_occupancy.total_rent * 100)
+            'payment_percentage': (total_paid / self.current_occupancy.total_rent * 100),
+            'overdue_amount': overdue_amount,
+            'overdue_payments': [
+                {
+                    'amount': float(p.amount),
+                    'due_date': p.due_date.strftime('%Y-%m-%d')
+                }
+                for p in self.current_occupancy.payments
+                if p.status == 'due' and p.due_date < today
+            ]
         }
-
 class Occupancy(db.Model):
     __tablename__ = 'occupancy'
     
@@ -451,25 +469,6 @@ class PropertyDetailView(AuthenticatedMethodView):
             return jsonify({'error': str(e)}), 400
 
 class OccupancyView(AuthenticatedMethodView):
-    # def post(self, property_id):
-    #     """Add new occupancy to a property"""
-    #     property = Property.query.filter_by(
-    #         property_id=property_id, 
-    #         user_id=session['user_id']
-    #     ).first_or_404()
-
-    #     data = request.json
-    #     if not validate_dates(data['lease_start_date'], data['lease_end_date']):
-    #         return jsonify({'error': 'Invalid date range'}), 400
-
-    #     try:
-    #         occupancy = property.add_occupancy(data)
-    #         occupancy.generate_payment_schedule(data['number_of_payments'])
-    #         return jsonify({'message': 'Occupancy added successfully'}), 201
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         return jsonify({'error': str(e)}), 400
-
     def post(self, property_id):
         """Add new occupancy to a property"""
         try:
@@ -595,9 +594,11 @@ class OccupancyView(AuthenticatedMethodView):
         try:
             start_date = datetime.strptime(data['lease_start_date'], '%Y-%m-%d')
             end_date = datetime.strptime(data['lease_end_date'], '%Y-%m-%d')
+            today = datetime.now().date()
+            
             if start_date >= end_date:
                 raise ValueError("Lease start date must be before end date")
-            if start_date < datetime.now():
+            if start_date < datetime.now().date():
                 raise ValueError("Lease start date cannot be in the past")
         except ValueError as e:
             raise ValueError(f"Invalid date format: {str(e)}")
@@ -919,6 +920,87 @@ class VacantPropertiesView(AuthenticatedMethodView):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+class OccupantsOverviewView(AuthenticatedMethodView):
+    def get(self):
+        try:
+            user_id = session.get('user_id')
+            if not user_id:
+                return jsonify({'error': 'Not authenticated'}), 401
+
+            # Get all occupancies for user's properties with a single query
+            occupancies = (db.session.query(Occupancy)
+                         .join(Property, Occupancy.property_id == Property.property_id)
+                         .filter(Property.user_id == user_id)
+                         .all())
+
+            today = datetime.now().date()
+            
+            # Initialize counters
+            total_occupants = len(occupancies)
+            active_occupants = 0
+            pending_occupants = 0
+            inactive_occupants = 0
+
+            # Count occupants by status
+            for occupancy in occupancies:
+                if occupancy.lease_start_date > today:
+                    pending_occupants += 1
+                elif occupancy.lease_end_date < today:
+                    inactive_occupants += 1
+                else:
+                    active_occupants += 1
+
+            print(f"Debug - Total: {total_occupants}, Active: {active_occupants}, "
+                  f"Pending: {pending_occupants}, Inactive: {inactive_occupants}")  # Debug print
+
+            return jsonify({
+                'total_occupants': total_occupants,
+                'active_occupants': active_occupants,
+                'pending_occupants': pending_occupants,
+                'inactive_occupants': inactive_occupants
+            }), 200
+
+        except Exception as e:
+            print("Error in occupants overview:", str(e))
+            return jsonify({'error': str(e)}), 500
+          
+class OccupantPaymentsView(AuthenticatedMethodView):
+    def get(self, occupancy_id):
+        """Get all payments for a specific occupancy"""
+        occupancy = Occupancy.query.filter_by(
+            occupancy_id=occupancy_id
+        ).first_or_404()
+
+        payments = [
+            {
+                'payment_id': payment.payment_id,
+                'amount': payment.amount,
+                'due_date': payment.due_date.strftime('%Y-%m-%d'),
+                'status': payment.status
+            }
+            for payment in occupancy.payments
+        ]
+
+        return jsonify(payments), 200
+
+    def put(self, occupancy_id):
+        """Update payment status for a specific occupancy"""
+        data = request.json
+        payment_id = data.get('payment_id')
+        new_status = data.get('status')
+
+        payment = Payment.query.filter_by(
+            payment_id=payment_id,
+            occupancy_id=occupancy_id
+        ).first_or_404()
+
+        if new_status not in ['due', 'paid']:
+            return jsonify({'error': 'Invalid status'}), 400
+
+        payment.status = new_status
+        db.session.commit()
+
+        return jsonify({'message': 'Payment status updated successfully'}), 200
 
 def register_routes(app):
     """Register all routes with the Flask app"""
@@ -955,6 +1037,7 @@ def register_routes(app):
     app.add_url_rule('/login', view_func=LoginView.as_view('login'))
     app.add_url_rule('/api/signup', view_func=UserView.as_view('user'))
     
+# ///////////////////////////////////////////////////////////
     @app.route('/dashboard.html')
     def dashboard():
             return render_template('dashboard.html')
@@ -962,7 +1045,8 @@ def register_routes(app):
     @app.route('/dashboard')
     def dashboard2():
             return render_template('dashboard.html')
-    
+# ///////////////////////////////////////////////////////////
+
     # Property routes
     @app.route('/properties')
     def properties_page3():
@@ -992,10 +1076,10 @@ def register_routes(app):
     app.add_url_rule(
         '/api/properties/<property_id>', 
         view_func=PropertyDetailView.as_view('property_detail'),
-        methods=['GET', 'PUT', 'DELETE']  # Add methods explicitly
+        methods=['GET', 'PUT', 'DELETE']  
     )
     app.add_url_rule('/api/properties/overview', view_func=PropertyOverviewView.as_view('properties_overview'))
-
+# ///////////////////////////////////////////////////////////
 
     # Occupancy routes
     @app.route('/occupants')
@@ -1012,100 +1096,310 @@ def register_routes(app):
     )
     app.add_url_rule(
         '/api/properties/<property_id>/occupancy',
-        view_func=OccupancyView.as_view('occupancy')
+        view_func=OccupancyView.as_view('occupancy'),
+        methods=['POST', 'PUT', 'DELETE', 'VALIDATE_OCCUPANCY_DATA'] 
     )
-    
+    app.add_url_rule(
+        '/api/occupants/overview',
+        view_func=OccupantsOverviewView.as_view('occupants_overview')
+    )
+    app.add_url_rule(
+        '/api/occupants/<int:occupancy_id>/payments',
+        view_func=OccupantPaymentsView.as_view('occupant_payments'),
+        methods=['GET', 'PUT'] 
+    )
+
     @app.route('/api/occupants', methods=['GET'])
     def get_occupants():
         try:
-            # Assuming you have a user_id in session
             user_id = session.get('user_id')
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
 
             # Join with properties to get property information
-            occupants = db.session.query(
-                Occupancy, Property
-            ).join(
-                Property, Occupancy.property_id == Property.property_id
-            ).filter(
-                Property.user_id == user_id
-            ).all()
+            occupancies = (db.session.query(Occupancy, Property)
+                        .join(Property, Occupancy.property_id == Property.property_id)
+                        .filter(Property.user_id == user_id)
+                        .all())
 
-            occupants_list = [{
-                'occupancy_id': occ.Occupancy.occupancy_id,
-                'property_id': occ.Property.property_id,
-                'property_address': f"{occ.Property.street_name}, {occ.Property.city}",
-                'tenant_name': occ.Occupancy.tenant_name,
-                'tenant_phone': occ.Occupancy.tenant_phone,
-                'tenant_email': occ.Occupancy.tenant_email,
-                'lease_start_date': occ.Occupancy.lease_start_date.strftime('%Y-%m-%d'),
-                'lease_end_date': occ.Occupancy.lease_end_date.strftime('%Y-%m-%d'),
-                'total_rent': float(occ.Occupancy.total_rent),
-                'status': occ.Occupancy.status
-            } for occ in occupants]
+            today = datetime.now().date()
+            
+            occupants_list = []
+            for occ in occupancies:
+                # Determine status based on dates
+                if occ.Occupancy.lease_start_date > today:
+                    status = 'pending'
+                elif occ.Occupancy.lease_end_date < today:
+                    status = 'inactive'
+                else:
+                    status = 'active'
+
+                # Get payment status summary
+                total_payments = len(occ.Occupancy.payments)
+                paid_payments = sum(1 for payment in occ.Occupancy.payments if payment.status == 'paid')
+                
+                occupants_list.append({
+                    'occupancy_id': occ.Occupancy.occupancy_id,
+                    'property_id': occ.Property.property_id,
+                    'property_address': f"{occ.Property.street_name}, {occ.Property.city}",
+                    'tenant_name': occ.Occupancy.tenant_name,
+                    'tenant_phone': occ.Occupancy.tenant_phone,
+                    'tenant_email': occ.Occupancy.tenant_email,
+                    'lease_start_date': occ.Occupancy.lease_start_date.strftime('%Y-%m-%d'),
+                    'lease_end_date': occ.Occupancy.lease_end_date.strftime('%Y-%m-%d'),
+                    'total_rent': float(occ.Occupancy.total_rent),
+                    'status': status,
+                    'payment_summary': f"{paid_payments}/{total_payments} payments completed"
+                })
 
             return jsonify(occupants_list)
         except Exception as e:
+            print("Error in get_occupants:", str(e))
             return jsonify({'error': str(e)}), 500
-
-    # Get single occupant
-    @app.route('/api/occupants/<int:occupancy_id>', methods=['GET'])
-    def get_occupant2(occupancy_id):
+    
+    @app.route('/api/occupancies/<int:occupancy_id>', methods=['PUT'])
+    def update_occupancy(occupancy_id):
         try:
-            occupant = Occupancy.query.get_or_404(occupancy_id)
-            return jsonify({
-                'occupancy_id': occupant.occupancy_id,
-                'tenant_name': occupant.tenant_name,
-                'tenant_phone': occupant.tenant_phone,
-                'tenant_email': occupant.tenant_email,
-                'lease_start_date': occupant.lease_start_date.strftime('%Y-%m-%d'),
-                'lease_end_date': occupant.lease_end_date.strftime('%Y-%m-%d'),
-                'total_rent': float(occupant.total_rent),
-                'status': occupant.status
-            })
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+            # Verify user is logged in
+            if 'user_id' not in session:
+                return jsonify({'error': 'Not authenticated'}), 401
 
-    # Update occupant
-    @app.route('/api/occupants/<int:occupancy_id>', methods=['PUT'])
-    def update_occupant(occupancy_id):
-        try:
-            occupant = Occupancy.query.get_or_404(occupancy_id)
+            # Get the occupancy record
+            occupancy = Occupancy.query.get_or_404(occupancy_id)
+            
+            # Verify the occupancy belongs to a property owned by the current user
+            property = Property.query.filter_by(
+                property_id=occupancy.property_id,
+                user_id=session['user_id']
+            ).first_or_404()
+
             data = request.json
+            print("Received update data:", data)  # Debug log
 
-            occupant.tenant_name = data['tenant_name']
-            occupant.tenant_phone = data['tenant_phone']
-            occupant.tenant_email = data['tenant_email']
-            occupant.lease_start_date = datetime.strptime(data['lease_start_date'], '%Y-%m-%d')
-            occupant.lease_end_date = datetime.strptime(data['lease_end_date'], '%Y-%m-%d')
-            occupant.total_rent = data['total_rent']
-            occupant.status = data['status']
+            # Update occupancy details
+            occupancy.tenant_name = data['tenant_name']
+            occupancy.tenant_phone = data['tenant_phone']
+            occupancy.tenant_email = data['tenant_email']
+            occupancy.lease_start_date = datetime.strptime(data['lease_start_date'], '%Y-%m-%d')
+            occupancy.lease_end_date = datetime.strptime(data['lease_end_date'], '%Y-%m-%d')
+            occupancy.total_rent = float(data['total_rent'])
 
-            db.session.commit()
-            return jsonify({'message': 'Occupant updated successfully'})
+            # Handle payments update
+            if 'payments' in data:
+                # Delete existing payments
+                Payment.query.filter_by(occupancy_id=occupancy_id).delete()
+                
+                # Create new payments with specified status
+                for payment_data in data['payments']:
+                    payment = Payment(
+                        occupancy_id=occupancy_id,
+                        amount=float(payment_data['amount']),
+                        due_date=datetime.strptime(payment_data['date'], '%Y-%m-%d'),
+                        status=payment_data['status']  
+                    )
+                    db.session.add(payment)
+                    print(f"Adding payment: {payment_data}")  # Debug log
+            else:
+                # If no payments data provided, create new payment schedule
+                payment_amount = occupancy.total_rent / data['number_of_payments']
+                start_date = occupancy.lease_start_date
+                
+                for i in range(data['number_of_payments']):
+                    due_date = start_date + timedelta(days=(30 * i))
+                    payment = Payment(
+                        occupancy_id=occupancy_id,
+                        amount=payment_amount,
+                        due_date=due_date,
+                        status='due'
+                    )
+                    db.session.add(payment)
+
+            try:
+                db.session.commit()
+                print("Successfully updated occupancy and payments")  # Debug log
+                return jsonify({'message': 'Occupancy updated successfully'}), 200
+            except Exception as e:
+                db.session.rollback()
+                print(f"Error during commit: {str(e)}")  # Debug log
+                raise e
+
         except Exception as e:
             db.session.rollback()
+            print("Error updating occupancy:", str(e))
             return jsonify({'error': str(e)}), 500
-
-    # Delete occupant
-    @app.route('/api/occupants/<int:occupancy_id>', methods=['DELETE'])
-    def delete_occupant(occupancy_id):
+    
+    
+    @app.route('/api/occupancies/<int:occupancy_id>', methods=['GET'])
+    def get_occupancy_details(occupancy_id):
+        """Fetch details for a specific occupancy."""
         try:
-            occupant = Occupancy.query.get_or_404(occupancy_id)
-            
-            # Update property status to vacant
-            property = Property.query.get(occupant.property_id)
-            property.occupancy_status = 'vacant'
-            
-            db.session.delete(occupant)
-            db.session.commit()
-            
-            return jsonify({'message': 'Occupant deleted successfully'})
+            # Fetch the occupancy and related payments
+            occupancy = Occupancy.query.filter_by(occupancy_id=occupancy_id).first_or_404()
+
+            # Prepare data for the response
+            occupancy_data = {
+                'occupancy_id': occupancy.occupancy_id,
+                'property_id': occupancy.property_id,
+                'tenant_name': occupancy.tenant_name,
+                'tenant_phone': occupancy.tenant_phone,
+                'tenant_email': occupancy.tenant_email,
+                'lease_start_date': occupancy.lease_start_date.strftime('%Y-%m-%d'),
+                'lease_end_date': occupancy.lease_end_date.strftime('%Y-%m-%d'),
+                'total_rent': occupancy.total_rent,
+                'payments': [
+                    {
+                        'payment_id': payment.payment_id,
+                        'amount': payment.amount,
+                        'due_date': payment.due_date.strftime('%Y-%m-%d'),
+                        'status': payment.status
+                    }
+                    for payment in occupancy.payments
+                ]
+            }
+
+            return jsonify(occupancy_data), 200
+
         except Exception as e:
-            db.session.rollback()
+            print("Error fetching occupancy details:", str(e))
             return jsonify({'error': str(e)}), 500
 
+    # @app.route('/api/properties/<property_id>/delete_occupancy', methods=['DELETE'])
+    # def delete_property_occupancy(property_id):
+    #     """Delete occupancy information for a specific property."""
+    #     try:
+    #         # Ensure the user is logged in
+    #         if 'user_id' not in session:
+    #             return jsonify({'error': 'User not logged in'}), 401
+
+    #         # Fetch the property and validate its association with the logged-in user
+    #         property = Property.query.filter_by(
+    #             property_id=property_id,
+    #             user_id=session['user_id']
+    #         ).first_or_404()
+
+    #         # Check if the property has active occupancy
+    #         if not property.current_occupancy:
+    #             return jsonify({'error': 'No occupancy information found for this property'}), 404
+
+    #         occupancy = property.current_occupancy
+
+    #         # Check for due payments
+    #         due_payments = [
+    #             {
+    #                 'payment_id': payment.payment_id,
+    #                 'amount': payment.amount,
+    #                 'due_date': payment.due_date.strftime('%Y-%m-%d')
+    #             }
+    #             for payment in occupancy.payments if payment.status == 'due'
+    #         ]
+
+    #         # If there are due payments, warn the user before deletion
+    #         if due_payments:
+    #             return jsonify({
+    #                 'warning': 'There are due payments associated with this occupancy.',
+    #                 'due_payments': due_payments,
+    #                 'requires_confirmation': True
+    #             }), 200
+
+    #         # Delete occupancy and associated payments
+    #         db.session.delete(occupancy)
+    #         property.occupancy_status = 'vacant'
+    #         db.session.commit()
+
+    #         return jsonify({'message': 'Occupancy information deleted successfully'}), 200
+
+    #     except Exception as e:
+    #         db.session.rollback()
+    #         print("Error deleting occupancy:", str(e))
+    #         return jsonify({'error': str(e)}), 500
+
+    
+    @app.route('/api/occupants/<int:occupancy_id>/check-delete', methods=['GET'])
+    def check_delete_occupant(occupancy_id):
+        """Check if occupant can be deleted and return due payments if any"""
+        try:
+            # Verify user is logged in
+            if 'user_id' not in session:
+                return jsonify({'error': 'Not authenticated'}), 401
+
+            # Get the occupancy record
+            occupancy = Occupancy.query.get_or_404(occupancy_id)
+            
+            # Verify the occupancy belongs to a property owned by the current user
+            property = Property.query.filter_by(
+                property_id=occupancy.property_id,
+                user_id=session['user_id']
+            ).first_or_404()
+
+            # Check for due payments
+            due_payments = Payment.query.filter_by(
+                occupancy_id=occupancy_id,
+                status='due'
+            ).all()
+
+            return jsonify({
+                'occupancy_id': occupancy_id,
+                'has_due_payments': len(due_payments) > 0,
+                'due_payments': [{
+                    'payment_id': payment.payment_id,
+                    'amount': float(payment.amount),
+                    'due_date': payment.due_date.strftime('%Y-%m-%d')
+                } for payment in due_payments]
+            })
+
+        except Exception as e:
+            print(f"Error checking occupant deletion: {str(e)}")
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/occupants/<int:occupancy_id>/delete', methods=['POST'])
+    def delete_occupant(occupancy_id):
+        """Delete an occupant and all related records"""
+        try:
+            # Verify user is logged in
+            if 'user_id' not in session:
+                return jsonify({'error': 'Not authenticated'}), 401
+
+            # Get the occupancy record
+            occupancy = Occupancy.query.get_or_404(occupancy_id)
+            
+            # Verify the occupancy belongs to a property owned by the current user
+            property = Property.query.filter_by(
+                property_id=occupancy.property_id,
+                user_id=session['user_id']
+            ).first_or_404()
+
+            # Begin transaction
+            db.session.begin_nested()
+
+            try:
+                # Delete all related payments first
+                Payment.query.filter_by(occupancy_id=occupancy_id).delete()
+                
+                # Delete the occupancy
+                db.session.delete(occupancy)
+                
+                # Update property status to vacant
+                property.occupancy_status = 'vacant'
+                
+                # Commit the transaction
+                db.session.commit()
+                
+                print(f"Successfully deleted occupant {occupancy_id} and all related records")
+                return jsonify({'message': 'Occupant and all related records deleted successfully'})
+
+            except Exception as e:
+                db.session.rollback()
+                raise e
+
+        except Exception as e:
+            print(f"Error deleting occupant: {str(e)}")
+            return jsonify({'error': str(e)}), 500
+
+
+# ///////////////////////////////////////////////////////////
+    
+    
+    
     # Document routes
     @app.route('/documents')
     def documents_page():
@@ -1123,6 +1417,7 @@ def register_routes(app):
         '/api/documents/<document_id>',
         view_func=DocumentDetailView.as_view('document_detail')
     )
+# ///////////////////////////////////////////////////////////
     
     # Income route
     @app.route('/income')

@@ -5,7 +5,7 @@
     z-index: 10; 
     background-color: #EEEEEE;
 }
-
+ 
 .navbar-brand img {
     height: 50px; 
     width: auto; 
@@ -38,7 +38,28 @@
     }
 }
 
-/* Documents Container */
+
+.document-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.document-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.no-documents {
+    text-align: center;
+    color: #6c757d;
+    margin-top: 2rem;
+}
+
+/* 
+Documents Container
 .documents-container {
     padding: 20px;
     margin-top: 20px;
@@ -46,7 +67,7 @@
     min-height: calc(100vh - 90px);
 }
 
-/* Document Stats */
+Document Stats
 .document-stat-card {
     background: white;
     padding: 20px;
@@ -78,7 +99,7 @@
     font-size: 0.9rem;
 }
 
-/* Documents Management Card */
+Documents Management Card
 .documents-management-card {
     background: white;
     padding: 20px;
@@ -91,7 +112,7 @@
     margin-bottom: 20px;
 }
 
-/* Search Box */
+Search Box
 .search-box {
     position: relative;
 }
@@ -108,7 +129,7 @@
     padding-right: 40px;
 }
 
-/* Document Info */
+Document Info
 .document-info {
     display: flex;
     align-items: center;
@@ -129,7 +150,7 @@
     color: #666;
 }
 
-/* Status Badge */
+Status Badge
 .status-badge {
     padding: 5px 10px;
     border-radius: 20px;
@@ -152,7 +173,7 @@
     color: #6c757d;
 }
 
-/* Action Buttons */
+Action Buttons
 .action-buttons {
     display: flex;
     gap: 5px;
@@ -163,7 +184,7 @@
     font-size: 0.875rem;
 }
 
-/* Modal Styles */
+Modal Styles
 .modal-header {
     background-color: rgb(0, 47, 108);
     color: white;
@@ -173,14 +194,14 @@
     color: white;
 }
 
-/* Form Controls */
+Form Controls
 .form-control:focus,
 .form-select:focus {
     border-color: rgb(0, 47, 108);
     box-shadow: 0 0 0 0.2rem rgba(0, 47, 108, 0.25);
 }
 
-/* Pagination */
+Pagination
 .pagination .page-link {
     color: rgb(0, 47, 108);
 }
@@ -188,7 +209,7 @@
 .pagination .page-item.active .page-link {
     background-color: rgb(0, 47, 108);
     border-color: rgb(0, 47, 108);
-}
+} */
 
 /* Responsive Design */
 @media (max-width: 768px) {

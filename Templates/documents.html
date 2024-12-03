@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documents - PropManager</title>
-    <link rel="stylesheet" href="/CSS/documents.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/documents.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-</head>
+</head> 
 <body>
     <!-- Navbar -->
     <nav style="height: 90px;" class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="dashboard.html">
-                <img src="/images/PropManager_Logo_NoBckg.png" alt="Logo">
+                <img src="{{ url_for('static', filename='images/PropManager_Logo_NoBckg.png') }}" alt="Logo">
                 <span>PropManager</span>
             </a>
 
@@ -49,242 +49,52 @@
         </div>
     </nav>
 
+    
     <!-- Main Content -->
-    <div class="container-fluid documents-container">
-        <!-- Document Stats -->
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <div class="document-stat-card">
-                    <i class="fas fa-file-alt"></i>
-                    <h3>Total Documents</h3>
-                    <p class="number">156</p>
-                    <p class="status">Across all properties</p>
+    <div class="container mt-5">
+        <!-- Add Document Section -->
+        <div class="document-card">
+            <h3 class="mb-4">Add Document</h3>
+            <form id="addDocumentForm">
+                <div class="mb-3">
+                    <label for="propertySelect" class="form-label">Select Property</label>
+                    <select class="form-select" id="propertySelect" required>
+                        <option value="">Choose a property...</option>
+                        <!-- Properties will be loaded dynamically -->
+                    </select>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="document-stat-card">
-                    <i class="fas fa-file-signature"></i>
-                    <h3>Pending Review</h3>
-                    <p class="number">8</p>
-                    <p class="status">Requires attention</p>
+                <div class="mb-3">
+                    <label for="documentTitle" class="form-label">Document Title</label>
+                    <input type="text" class="form-control" id="documentTitle" required>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="document-stat-card">
-                    <i class="fas fa-file-upload"></i>
-                    <h3>Recent Uploads</h3>
-                    <p class="number">12</p>
-                    <p class="status">Last 7 days</p>
+                <div class="mb-3">
+                    <label for="documentDate" class="form-label">Document Date</label>
+                    <input type="date" class="form-control" id="documentDate" required>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="document-stat-card">
-                    <i class="fas fa-file-archive"></i>
-                    <h3>Storage Used</h3>
-                    <p class="number">2.1 GB</p>
-                    <p class="status">of 5 GB limit</p>
+                <div class="mb-3">
+                    <label for="documentFile" class="form-label">Upload Document</label>
+                    <input type="file" class="form-control" id="documentFile" required>
                 </div>
-            </div>
+                <button type="submit" class="btn btn-primary">Upload Document</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancel</button>
+            </form>
         </div>
 
-        <!-- Document Management Section -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="documents-management-card">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3>Document Management</h3>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
-                            <i class="fas fa-plus"></i> Add New Document
-                        </button>
-                    </div>
-
-                    <!-- Search and Filter -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search documents...">
-                                <i class="fas fa-search search-icon"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select">
-                                <option selected>Filter by Property</option>
-                                <option>123 Main Street</option>
-                                <option>456 Oak Avenue</option>
-                                <option>789 Pine Road</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select">
-                                <option selected>Document Type</option>
-                                <option>Lease Agreement</option>
-                                <option>Maintenance Report</option>
-                                <option>Insurance Document</option>
-                                <option>Property Deed</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Documents Table -->
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Document Name</th>
-                                    <th>Property</th>
-                                    <th>Type</th>
-                                    <th>Date Added</th>
-                                    <th>Size</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="document-info">
-                                            <i class="fas fa-file-pdf document-icon"></i>
-                                            <div>
-                                                <h6>Lease Agreement - Unit 101</h6>
-                                                <small>PDF Document</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>123 Main Street</td>
-                                    <td>Lease Agreement</td>
-                                    <td>Jan 15, 2024</td>
-                                    <td>2.5 MB</td>
-                                    <td><span class="status-badge active">Active</span></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-outline-primary" title="View">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-secondary" title="Edit" data-bs-toggle="modal" data-bs-target="#editDocumentModal">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteDocumentModal">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Add more document rows as needed -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    <nav aria-label="Documents pagination" class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+        <!-- Delete Document Section -->
+        <div class="document-card">
+            <h3 class="mb-4">Delete Document</h3>
+            <div class="mb-3">
+                <label for="deletePropertySelect" class="form-label">Select Property</label>
+                <select class="form-select" id="deletePropertySelect" required>
+                    <option value="">Choose a property...</option>
+                    <!-- Properties will be loaded dynamically -->
+                </select>
             </div>
-        </div>
-    </div>
-
-    <!-- Add Document Modal -->
-    <div class="modal fade" id="addDocumentModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Document</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Document Title</label>
-                            <input type="text" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Property</label>
-                            <select class="form-select" required>
-                                <option value="">Select Property</option>
-                                <option>123 Main Street</option>
-                                <option>456 Oak Avenue</option>
-                                <option>789 Pine Road</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Document Type</label>
-                            <select class="form-select" required>
-                                <option value="">Select Type</option>
-                                <option>Lease Agreement</option>
-                                <option>Maintenance Report</option>
-                                <option>Insurance Document</option>
-                                <option>Property Deed</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Upload Document</label>
-                            <input type="file" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Upload Document</button>
-                </div>
+            <div id="documentList" class="document-list">
+                <!-- Documents will be loaded dynamically -->
             </div>
-        </div>
-    </div>
-
-    <!-- Edit Document Modal -->
-    <div class="modal fade" id="editDocumentModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Document</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Document Title</label>
-                            <input type="text" class="form-control" value="Lease Agreement - Unit 101" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Property</label>
-                            <select class="form-select" required>
-                                <option>123 Main Street</option>
-                                <option>456 Oak Avenue</option>
-                                <option>789 Pine Road</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Document Type</label>
-                            <select class="form-select" required>
-                                <option selected>Lease Agreement</option>
-                                <option>Maintenance Report</option>
-                                <option>Insurance Document</option>
-                                <option>Property Deed</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Save Changes</button>
-                </div>
+            <div id="noDocumentsMessage" class="no-documents d-none">
+                <i class="fas fa-info-circle me-2"></i>No documents found for this property.
             </div>
         </div>
     </div>
@@ -302,13 +112,142 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger">Delete Document</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete Document</button>
                 </div>
             </div>
         </div>
     </div>
 
+    
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProperties();
+            document.getElementById('addDocumentForm').addEventListener('submit', handleAddDocument);
+            document.getElementById('deletePropertySelect').addEventListener('change', loadDocuments);
+        });
+
+        async function loadProperties() {
+            try {
+                const response = await fetch('/api/properties');
+                if (!response.ok) throw new Error('Failed to fetch properties');
+                
+                const properties = await response.json();
+                const addSelect = document.getElementById('propertySelect');
+                const deleteSelect = document.getElementById('deletePropertySelect');
+                
+                properties.forEach(property => {
+                    const option = `<option value="${property.property_id}">${property.street_name}, ${property.city}</option>`;
+                    addSelect.innerHTML += option;
+                    deleteSelect.innerHTML += option;
+                });
+            } catch (error) {
+                console.error('Error loading properties:', error);
+                alert('Failed to load properties. Please try again.');
+            }
+        }
+
+        async function handleAddDocument(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('documentFile');
+            const file = fileInput.files[0];
+
+            if (file.size > 5 * 1024 * 1024) { // 5 MB limit
+                alert('File size exceeds the 5 MB limit. Please choose a smaller file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('property_id', document.getElementById('propertySelect').value);
+            formData.append('title', document.getElementById('documentTitle').value);
+            formData.append('date', document.getElementById('documentDate').value);
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`/api/properties/${document.getElementById('propertySelect').value}/documents`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to upload document');
+                }
+                alert('Document uploaded successfully!');
+                resetForm();
+            } catch (error) {
+                console.error('Error uploading document:', error);
+                alert(`Failed to upload document. ${error.message}`);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('addDocumentForm').reset();
+        }
+
+        async function loadDocuments() {
+            const propertyId = document.getElementById('deletePropertySelect').value;
+            if (!propertyId) {
+                document.getElementById('documentList').innerHTML = '';
+                document.getElementById('noDocumentsMessage').classList.remove('d-none');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/properties/${propertyId}/documents`);
+                if (!response.ok) throw new Error('Failed to fetch documents');
+                
+                const documents = await response.json();
+                const documentList = document.getElementById('documentList');
+                documentList.innerHTML = '';
+
+                if (documents.length === 0) {
+                    document.getElementById('noDocumentsMessage').classList.remove('d-none');
+                } else {
+                    document.getElementById('noDocumentsMessage').classList.add('d-none');
+                    documents.forEach(doc => {
+                        const docItem = document.createElement('div');
+                        docItem.className = 'd-flex justify-content-between align-items-center mb-2';
+                        docItem.innerHTML = `
+                            <span>${doc.title} (${new Date(doc.upload_date).toLocaleDateString()})</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${doc.document_id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        `;
+                        documentList.appendChild(docItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                alert('Failed to load documents. Please try again.');
+            }
+        }
+
+        function confirmDelete(documentId) {
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
+            deleteModal.show();
+
+            document.getElementById('confirmDeleteButton').onclick = async function() {
+                try {
+                    const response = await fetch(`/api/documents/${documentId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to delete document');
+                    }
+                    alert('Document deleted successfully!');
+                    loadDocuments();
+                    deleteModal.hide();
+                } catch (error) {
+                    console.error('Error deleting document:', error);
+                    alert(`Failed to delete document. ${error.message}`);
+                }
+            };
+        }
+    </script>
 </body>
 </html>

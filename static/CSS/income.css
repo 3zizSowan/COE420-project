@@ -5,7 +5,7 @@
     z-index: 10; 
     background-color: #EEEEEE;
 }
-
+ 
 .navbar-brand img {
     height: 50px; 
     width: auto; 
@@ -26,7 +26,42 @@
 }
 
 /* Main Container */
-.income-container {
+.income-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.income-stats {
+    text-align: center;
+    padding: 2rem;
+}
+
+.income-percentage {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.overdue-alert {
+    background-color: #fff3cd;
+    border-left: 5px solid #ffc107;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.select-property {
+    max-width: 600px;
+    margin: 0 auto;
+}
+/* .income-container {
     padding: 20px;
     margin-top: 20px;
     background-color: #f8f9fa;
@@ -159,7 +194,7 @@
 
 .progress-bar {
     border-radius: 4px;
-}
+} */
 
 /* Buttons */
 .btn-primary {
