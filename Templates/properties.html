@@ -54,26 +54,32 @@
     <!-- Main Content -->
     <div class="container-fluid properties-container">
         <!-- Properties Overview -->
-        <div class="row mt-4">
+        <div class="row mt-4 overview-container">
             <div class="col-md-4">
-                <div class="property-stat-card">
+                <div class="stat-card">
                     <i class="fas fa-building"></i>
-                    <h3>Total Properties</h3>
+                    <h3>Properties</h3>
                     <p class="number" id="totalProperties">0</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" id="occupancyRate" style="width: 0%"></div>
+                    </div>
+                    <small class="mt-2 d-block" id="occupancyText">Occupancy Rate: 0%</small>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="property-stat-card">
+                <div class="stat-card">
                     <i class="fas fa-home"></i>
                     <h3>Occupied Units</h3>
                     <p class="number" id="occupiedUnits">0</p>
+                    <small class="text-white">Active Leases</small>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="property-stat-card">
+                <div class="stat-card">
                     <i class="fas fa-door-open"></i>
                     <h3>Vacant Units</h3>
                     <p class="number" id="vacantUnits">0</p>
+                    <small class="text-white">Vacant Units</small>
                 </div>
             </div>
         </div>
@@ -464,6 +470,8 @@
         document.getElementById('totalProperties').textContent = data.total_properties || 0;
         document.getElementById('occupiedUnits').textContent = data.occupied_properties || 0;
         document.getElementById('vacantUnits').textContent = data.vacant_properties || 0;
+        document.getElementById('occupancyRate').style.width = `${data.Occupancy_rate}%`;
+        document.getElementById('occupancyText').textContent = `Occupancy Rate: ${data.Occupancy_rate}%`;
     }
 
     async function addProperty() {
@@ -597,13 +605,13 @@
                                 </div>
                             </div>
                             <div class="property-actions mt-3 d-flex gap-2">
-                                <button class="btn btn-info" onclick="displayPropertyDetails('${property.property_id}')">
+                                <button class="btn btn-outline-dark" onclick="displayPropertyDetails('${property.property_id}')">
                                         <i class="fas fa-info-circle"></i> View Details
                                 </button>
-                                <button class="btn btn-success" onclick="openModifyModal('${property.property_id}')">
+                                <button class="btn btn-outline-primary" onclick="openModifyModal('${property.property_id}')">
                                     <i class="fas fa-edit"></i> Modify
                                 </button>
-                                <button class="btn btn-danger" onclick="openDeleteModal('${property.property_id}')">
+                                <button class="btn btn-outline-danger" onclick="openDeleteModal('${property.property_id}')">
                                     <i class="fas fa-trash"></i> Delete
                                 </button>
                                 
@@ -888,7 +896,8 @@
                                 ${propertyDetails.documents.documents_list.map(doc => `
                                     <div class="document-item">
                                         <i class="fas fa-file-alt"></i>
-                                        <span>${doc.title}</span>
+                                        
+                                        <a href="/api/documents/${doc.document_id}/download" class="btn btn-primary">Download</a>
                                         <small>Uploaded: ${doc.upload_date}</small>
                                     </div>
                                 `).join('')}
@@ -912,6 +921,6 @@
         }
     }
 
- </script>
+ </script> 
 </body>
 </html>

@@ -83,3 +83,138 @@
         flex: 100%; /* Stack columns on small screens */
     }
 }
+
+/* --------------NAVBAR */
+.navbar {
+    position: static;
+    z-index: 10; 
+    background-color: #EEEEEE;
+}
+
+.navbar-brand img {
+    height: 50px; 
+    width: auto; 
+}
+
+.nav-link {
+    color: #34495e;
+    font-size: 1rem;
+    font-weight: 500; /* Standard weight */
+    transition: color 0.3s ease, border-bottom 0.3s ease; /* Added transition for underline */
+    position: relative; /* For positioning the underline */
+}
+
+.nav-link:hover {
+    color: darkturquoise !important; 
+}
+
+.navbar-nav .nav-link.active {
+    color: rgb(0, 47, 108) !important; 
+    font-weight: 650 !important; 
+}
+
+.navbar-nav .nav-link.active::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px; 
+    background-color: rgba(0, 47, 108, 0.5); 
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+}
+
+/* Centering the navbar items in mobile view */
+@media (max-width: 992px) {
+    .navbar-collapse {
+        text-align: left;
+        background-color: #eeeeee;
+    }
+
+    .navbar-nav {
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .nav-link {
+        padding: 0.5rem;
+        display: block;
+        color: #34495e;
+    }
+    
+    .nav-link:hover {
+        color: #b59410;
+    }
+    
+    .nav-link.active {
+        color: rgb(0, 47, 108) !important; /* Keep the text color */
+        font-weight: 550 !important; /* Slightly increased font weight */
+    }
+    
+    .nav-link.active::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 2px; /* Thickness of the underline */
+        background-color: rgba(0, 47, 108, 0.5); /* Subtle underline color */
+        position: absolute;
+        bottom: -2px; /* Positioning the underline */
+        left: 0;
+    }
+    
+    .navbar-collapse .nav-link {
+        color: #34495e; 
+    }
+    
+    .navbar-collapse .nav-link:hover {
+        color: #b59410; 
+    }
+    
+    .navbar-brand img {
+        margin: auto;
+    }
+
+}
+
+.stat-card {
+    color: white; /* Text color */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px; /* Padding */
+    height: 100%; /* Full height */
+    position: relative; /* Positioning */
+    display: flex; /* Flexbox for layout */
+    flex-direction: column; /* Column layout */
+    margin-bottom: 12px; /* Spacing between cards */
+    transition: transform 0.3s ease; /* Smooth transition */
+    background-color: rgb(0, 47, 108) !important;
+}
+
+.stat-card i {
+    font-size: 2.5rem; /* Icon size */
+    margin-bottom: 15px; /* Space below icon */
+    color: white !important; /* Icon color */
+}
+
+.stat-card .number {
+    font-size: 2rem; /* Number size */
+    font-weight: bold; /* Bold text */
+    color: white !important; /* Number color */
+}
+
+.stat-card .status {
+    color: #666; /* Status text color */
+    font-size: 0.9rem; /* Status text size */
+    color: white !important;
+}
+
+.overview-container{
+    display: flex;
+    row-gap: 15px;
+  }
+@media (max-width: 768px) {
+   .overview-container{
+     flex-direction: column;
+     row-gap: 15px;
+     padding: 15px;
+   }
+ }

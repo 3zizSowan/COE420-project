@@ -978,12 +978,16 @@ class PropertyOverviewView(AuthenticatedMethodView):
 
         # Vacant properties
         vacant_properties = Property.query.filter_by(user_id=user_id, occupancy_status='vacant').count()
+        
+        #occupancy rate
+        Occupancy_rate = (occupied_properties / total_properties * 100) if total_properties > 0 else 0
 
         # Return the statistics as JSON
         return jsonify({
             'total_properties': total_properties,
             'occupied_properties': occupied_properties,
-            'vacant_properties': vacant_properties
+            'vacant_properties': vacant_properties,
+            'Occupancy_rate': round(Occupancy_rate,1)
         })
 
 class VacantPropertiesView(AuthenticatedMethodView):
@@ -1185,6 +1189,24 @@ def register_routes(app):
             print(f"Error in full property details route: {str(e)}")
             return jsonify({'error': str(e)}), 500
 
+    @app.route('/api/documents/<int:document_id>/download', methods=['GET'])
+    def download_document(document_id):
+        """Download a document by its ID."""
+        try:
+            # Fetch the document from the database
+            document = Document.query.get_or_404(document_id)
+
+            # Check if the file exists
+            if not os.path.exists(document.file_path):
+                return jsonify({'error': 'File not found'}), 404
+
+            # Serve the file for download
+            return send_file(document.file_path, as_attachment=True)
+
+        except Exception as e:
+            print(f"Error downloading document: {str(e)}")
+            return jsonify({'error': 'Failed to download document'}), 500
+    
     app.add_url_rule('/api/properties', view_func=PropertyView.as_view('properties'))
     app.add_url_rule(
         '/api/properties/<property_id>', 
@@ -1192,6 +1214,8 @@ def register_routes(app):
         methods=['GET', 'PUT', 'DELETE']  
     )
     app.add_url_rule('/api/properties/overview', view_func=PropertyOverviewView.as_view('properties_overview'))
+    
+    
 # ///////////////////////////////////////////////////////////
 
     # Occupancy routes
