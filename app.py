@@ -995,6 +995,7 @@ def register_routes(app):
         methods=['GET', 'PUT', 'DELETE']  # Add methods explicitly
     )
     app.add_url_rule('/api/properties/overview', view_func=PropertyOverviewView.as_view('properties_overview'))
+    app.add_url_rule('/api/dashboard/overview', view_func=DashboardView.as_view('dashboard_overview')) 
 
 
     # Occupancy routes
