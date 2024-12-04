@@ -988,12 +988,17 @@ class PropertyOverviewView(AuthenticatedMethodView):
 
         # Vacant properties
         vacant_properties = Property.query.filter_by(user_id=user_id, occupancy_status='vacant').count()
+        
+        # Occupancy rate
+        Occupancy_rate = (occupied_properties / total_properties * 100) if total_properties > 0 else 0
+
 
         # Return the statistics as JSON
         return jsonify({
             'total_properties': total_properties,
             'occupied_properties': occupied_properties,
-            'vacant_properties': vacant_properties
+            'vacant_properties': vacant_properties,
+            'Occupancy_rate': round(Occupancy_rate,1)
         })
 
 

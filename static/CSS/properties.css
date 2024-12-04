@@ -476,3 +476,26 @@
         margin-bottom: 20px; /* Add spacing between cards on smaller screens */
     }
 }
+
+/* Occupied and Vacant Status Styles */
+.status-occupied {
+    background-color: rgba(25, 135, 84, 0.1); /* Light green background */
+    color: #198754; /* Dark green text */
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    justify-self:end;
+    margin: 15px;
+}
+
+.status-vacant {
+    background-color: rgba(255, 193, 7, 0.1); /* Light yellow background */
+    color: #ffc107; /* Dark yellow text */
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    justify-self: end;
+    margin: 15px;
+}
