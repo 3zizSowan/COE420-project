@@ -1,27 +1,8 @@
 /* --------------NAVBAR */
-.navbar {
-  position: static;
-  z-index: 10; 
-  background-color: #EEEEEE;
-}
 
 .navbar-brand img {
   height: 50px; 
   width: auto; 
-}
-
-.nav-link {
-  color: #34495e;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.nav-link:hover {
-  color: #b59410; 
-}
-
-.nav-link.active {
-  color: #b59410;
 }
 
 .login-link {
@@ -91,7 +72,7 @@
 .slide {
   position: absolute;
   width: 100%;
-  height: 700px;
+  height: 700px; /* Default height for larger screens */
   opacity: 0;
   transition: opacity 1s ease-in-out; 
 }
@@ -125,6 +106,12 @@
   color: #f2f2f2;
 }
 
+@media (max-width: 768px) {
+  .slide {
+    height: 400px; /* Reduced height for smaller screens */
+  }
+}
+
 /* ------------------Overlayed Box on slideshow */
 .overlay-container {
   position: relative;
@@ -140,10 +127,10 @@
 
 .overlay-content {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(0, 47, 108, 0.8);
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust for centering */
+  background-color: rgba(0, 47, 108, 0.6);
   color: white;
   padding: 20px;
   border-radius: 8px;
@@ -210,6 +197,10 @@
 .about-section img {
   max-width: 100%;
   height: auto;
+  margin-bottom: 15px;
+  display: flex;
+  justify-self: center;
+  justify-items: center;
 }
 
 /* Features Section */
@@ -454,12 +445,27 @@
   margin-bottom: 20px;
 }
 
+.overview-container{
+  display: flex;
+  row-gap: 15px;
+}
+@media (max-width: 768px) {
+  .overview-container{
+    padding: 15px;
+    flex-direction: column;
+  }
+}
+
 .stat-card {
   background: rgb(0, 47, 108);
   color: white;
   border-radius: 10px;
   padding: 20px;
   height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
 }
 
 .stat-card i {
@@ -525,7 +531,8 @@
   }
 
   .stat-card {
-    margin-bottom: 15px;
+    position: relative;
+    margin-bottom: 15px; /* Add spacing between stat cards on smaller screens */
   }
 
   .content-card {

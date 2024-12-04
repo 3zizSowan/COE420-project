@@ -1,29 +1,5 @@
 /* Income Tracking Page Styles */
-/* --------------NAVBAR */
-.navbar {
-    position: static;
-    z-index: 10; 
-    background-color: #EEEEEE;
-}
- 
-.navbar-brand img {
-    height: 50px; 
-    width: auto; 
-}
 
-.nav-link {
-    color: #34495e;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.nav-link:hover {
-    color: #b59410; 
-}
-
-.nav-link.active {
-    color: #b59410;
-}
 
 /* Main Container */
 .income-card {

@@ -1,29 +1,4 @@
 /* Documents Page Styles */
-/* --------------NAVBAR */
-.navbar {
-    position: static;
-    z-index: 10; 
-    background-color: #EEEEEE;
-}
- 
-.navbar-brand img {
-    height: 50px; 
-    width: auto; 
-}
-
-.nav-link {
-    color: #34495e;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.nav-link:hover {
-    color: #b59410; 
-}
-
-.nav-link.active {
-    color: #b59410;
-}
 
 /* Centering the navbar items in mobile view */
 @media (max-width: 992px) {
@@ -45,6 +20,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 2rem;
     margin-bottom: 2rem;
+    border-color: rgb(0, 47, 108);
 }
 
 .document-list {
